@@ -16,9 +16,8 @@ onMounted(async () => {
 
 <template>
   <section class="page-section" v-if="post">
-    <h1 class="text-3xl font-bold mb-4">{{ post.name }}</h1>
-    <p class="text-gray-600">{{ post.properties.title }}</p>
-    <!-- Add content fields here later -->
+    <h1 class="post-title">{{ post.name }}</h1>
+    <p class="post-body">{{ post.properties.title }}</p>
   </section>
 
   <section class="page-section text-center" v-else>
