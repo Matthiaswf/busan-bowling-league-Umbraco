@@ -25,6 +25,24 @@ onMounted(async () => {
     />
     <h1 class="post-title">{{ team.properties.teamName }}</h1>
     <p class="post-body">{{ team.properties.bio }}</p>
+    <div class="mt-6 grid grid-cols-2 gap-4 text-sm text-center">
+      <div class="bg-gray-100 rounded p-4">
+        <div class="font-bold text-lg">{{ team.properties.gamesPlayed }}</div>
+        <div class="text-gray-500">Games Played</div>
+      </div>
+      <div class="bg-gray-100 rounded p-4">
+        <div class="font-bold text-lg">{{ team.properties.wins }}</div>
+        <div class="text-gray-500">Wins</div>
+      </div>
+      <div class="bg-gray-100 rounded p-4">
+        <div class="font-bold text-lg">{{ team.properties.losses }}</div>
+        <div class="text-gray-500">Losses</div>
+      </div>
+      <div class="bg-gray-100 rounded p-4">
+        <div class="font-bold text-lg">{{ team.properties.points }}</div>
+        <div class="text-gray-500">Points</div>
+      </div>
+    </div>
   </section>
 
   <section v-else class="page-section text-center">
