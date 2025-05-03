@@ -1,16 +1,17 @@
 export const useApi = () => {
-  const baseUrl = 'https://localhost:44307'; // Use your actual API base
+  const baseUrl = 'http://localhost:64203';
 
   const get = async (endpoint: string) => {
+    const url = `${baseUrl}${endpoint}`;
+    console.log('Fetching (raw):', url);
+
     try {
-      const { data, error } = await useFetch(`${baseUrl}${endpoint}`, {
-        // Disable SSR fetch since it's local and not trusted
-        server: false,
-      });
-      if (error.value) throw new Error(error.value.message);
-      return data.value;
+      const res = await fetch(url);
+      const json = await res.json();
+      console.log('Raw fetch success:', json);
+      return json;
     } catch (err) {
-      console.error('API GET error:', err);
+      console.error('Raw fetch failed:', err);
       return null;
     }
   };

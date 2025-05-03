@@ -4,7 +4,8 @@ const posts = ref([]);
 
 onMounted(async () => {
   const data = await get('/umbraco/delivery/api/v1/content');
-  posts.value = data?.content?.items || [];
+  console.log('Fetched from Umbraco:', data);
+  posts.value = data?.items || [];
 });
 </script>
 
@@ -17,17 +18,9 @@ onMounted(async () => {
         :key="post.id"
         class="bg-white rounded shadow p-4"
       >
-        <h3 class="text-lg font-bold mb-1">{{ post.name }}</h3>
+        <h3 class="text-lg font-bold mb-2">{{ post.name }}</h3>
         <p class="text-gray-600">{{ post.properties.title }}</p>
       </div>
-    </div>
-  </section>
-
-  <section class="page-section">
-    <h2 class="section-title">Latest Posts</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="bg-white rounded shadow p-4">Post 1 (placeholder)</div>
-      <div class="bg-white rounded shadow p-4">Post 2 (placeholder)</div>
     </div>
   </section>
 
