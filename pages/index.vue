@@ -1,11 +1,14 @@
 <script setup>
 const { get } = useApi();
 const posts = ref([]);
+const teams = ref([]);
 
 onMounted(async () => {
   const data = await get('/umbraco/delivery/api/v1/content');
-  console.log('Fetched from Umbraco:', data);
-  posts.value = data?.items || [];
+  const items = data?.items || [];
+
+  posts.value = items.filter((item) => item.contentType === 'post');
+  teams.value = items.filter((item) => item.contentType === 'team');
 });
 </script>
 
@@ -37,11 +40,22 @@ onMounted(async () => {
 
   <section class="page-section">
     <h2 class="section-title">Teams</h2>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div class="bg-white rounded shadow p-4 text-center">Team A</div>
-      <div class="bg-white rounded shadow p-4 text-center">Team B</div>
-      <div class="bg-white rounded shadow p-4 text-center">Team C</div>
-      <div class="bg-white rounded shadow p-4 text-center">Team D</div>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div
+        v-for="team in teams"
+        :key="team.id"
+        class="bg-white rounded shadow p-4 text-center"
+      >
+        <img
+          v-if="team.properties.logo"
+          :src="`http://localhost:64203${team.properties.logo[0]?.url}`"
+          alt="Team Logo"
+          class="w-20 h-20 object-contain mx-auto mb-2"
+        />
+
+        <h3 class="text-lg font-bold mb-1">{{ team.properties.teamName }}</h3>
+        <p class="text-gray-500 text-sm">{{ team.properties.bio }}</p>
+      </div>
     </div>
   </section>
 
