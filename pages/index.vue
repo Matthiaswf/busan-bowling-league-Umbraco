@@ -53,7 +53,13 @@ onMounted(async () => {
           class="w-20 h-20 object-contain mx-auto mb-2"
         />
 
-        <h3 class="text-lg font-bold mb-1">{{ team.properties.teamName }}</h3>
+        <NuxtLink
+          :to="`/teams/${team.properties.slug}`"
+          class="text-lg font-bold mb-1 text-blue-700 hover:underline block"
+        >
+          {{ team.properties.teamName }}
+        </NuxtLink>
+
         <p class="text-gray-500 text-sm">{{ team.properties.bio }}</p>
       </div>
     </div>
