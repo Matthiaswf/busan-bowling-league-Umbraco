@@ -1,4 +1,28 @@
+<script setup>
+const { get } = useApi();
+const posts = ref([]);
+
+onMounted(async () => {
+  const data = await get('/umbraco/delivery/api/v1/content');
+  posts.value = data?.content?.items || [];
+});
+</script>
+
 <template>
+  <section class="page-section">
+    <h2 class="section-title">Latest Posts</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div
+        v-for="post in posts"
+        :key="post.id"
+        class="bg-white rounded shadow p-4"
+      >
+        <h3 class="text-lg font-bold mb-1">{{ post.name }}</h3>
+        <p class="text-gray-600">{{ post.properties.title }}</p>
+      </div>
+    </div>
+  </section>
+
   <section class="page-section">
     <h2 class="section-title">Latest Posts</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
