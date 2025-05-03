@@ -9,7 +9,9 @@ onMounted(async () => {
   const data = await get('/umbraco/delivery/api/v1/content');
   const items = data?.items || [];
   post.value = items.find(
-    (p) => p.properties.slug?.toLowerCase() === route.params.slug.toLowerCase()
+    (p) =>
+      p.name.toLowerCase().replace(/ /g, '-') ===
+      route.params.slug.toLowerCase()
   );
 });
 </script>
@@ -17,7 +19,7 @@ onMounted(async () => {
 <template>
   <section class="page-section" v-if="post">
     <h1 class="post-title">{{ post.name }}</h1>
-    <p class="post-body">{{ post.properties.title }}</p>
+    <p class="post-body">{{ post.properties.content }}</p>
   </section>
 
   <section class="page-section text-center" v-else>

@@ -8,9 +8,12 @@ const team = ref(null);
 onMounted(async () => {
   const data = await get('/umbraco/delivery/api/v1/content');
   const items = data?.items || [];
+  console.log(route.params);
 
   team.value = items.find(
-    (t) => t.properties.slug?.toLowerCase() === route.params.slug.toLowerCase()
+    (t) =>
+      t.name.toLowerCase().replace(/ /g, '-') ===
+      route.params.slug.toLowerCase()
   );
 });
 </script>
@@ -23,7 +26,7 @@ onMounted(async () => {
       alt="Team Logo"
       class="w-24 h-24 object-contain mb-4"
     />
-    <h1 class="post-title">{{ team.properties.teamName }}</h1>
+    <h1 class="post-title">{{ team.name }}</h1>
     <p class="post-body">{{ team.properties.bio }}</p>
     <div class="mt-6 grid grid-cols-2 gap-4 text-sm text-center">
       <div class="bg-gray-100 rounded p-4">

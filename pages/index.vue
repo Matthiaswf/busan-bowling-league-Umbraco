@@ -22,7 +22,7 @@ onMounted(async () => {
         class="bg-white rounded shadow p-4"
       >
         <NuxtLink
-          :to="`/posts/${post.properties.slug}`"
+          :to="`/posts/${post.name.toLowerCase().replace(/ /g, '-')}`"
           class="text-lg font-bold mb-2 text-blue-700 hover:underline block"
         >
           {{ post.name }}
@@ -54,10 +54,10 @@ onMounted(async () => {
         />
 
         <NuxtLink
-          :to="`/teams/${team.properties.slug}`"
+          :to="`/teams/${team.name.toLowerCase().replace(/ /g, '-')}`"
           class="text-lg font-bold mb-1 text-blue-700 hover:underline block"
         >
-          {{ team.properties.teamName }}
+          {{ team.name }}
         </NuxtLink>
 
         <p class="text-gray-500 text-sm">{{ team.properties.bio }}</p>
