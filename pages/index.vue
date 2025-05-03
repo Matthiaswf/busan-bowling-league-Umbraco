@@ -18,7 +18,13 @@ onMounted(async () => {
         :key="post.id"
         class="bg-white rounded shadow p-4"
       >
-        <h3 class="text-lg font-bold mb-2">{{ post.name }}</h3>
+        <NuxtLink
+          :to="`/posts/${post.properties.slug}`"
+          class="text-lg font-bold mb-2 text-blue-700 hover:underline block"
+        >
+          {{ post.name }}
+        </NuxtLink>
+
         <p class="text-gray-600">{{ post.properties.title }}</p>
       </div>
     </div>

@@ -1,8 +1,11 @@
+<script setup>
+import { useRoute } from 'vue-router';
+const route = useRoute();
+</script>
+
 <template>
   <section class="page-section">
-    <h2 class="section-title">Coming Soon</h2>
-    <p class="text-gray-600">
-      This is a placeholder for the {{ $route.params.slug }} page.
-    </p>
+    <h2 class="section-title">Post: {{ route.params.slug }}</h2>
+    <p class="text-gray-600">Post content will go here.</p>
   </section>
 </template>
