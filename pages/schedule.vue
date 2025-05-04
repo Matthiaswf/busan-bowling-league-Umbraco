@@ -2,26 +2,27 @@
 const { get } = useApi();
 const seasons = ref([]);
 const selectedSeason = ref(null);
+const weeks = ref([]);
 
 onMounted(async () => {
+  // Step 1: fetch all content
   const data = await get('/umbraco/delivery/api/v1/content');
   const items = data?.items || [];
 
-  // Filter out Season documents only
+  // Step 2: filter out seasons
   seasons.value = items.filter((item) => item.contentType === 'season');
-
-  // Auto-select the first season (latest)
   selectedSeason.value = seasons.value[0] || null;
 
-  console.log('All seasons:', seasons.value);
-
-  const weeks = computed(() => {
-    return (
-      selectedSeason.value?.children?.filter(
-        (child) => child.contentType === 'week'
-      ) || []
+  // Step 3: get weeks manually based on parent ID
+  if (selectedSeason.value) {
+    weeks.value = items.filter(
+      (item) =>
+        item.contentType === 'week' &&
+        item.route?.startItem?.id === selectedSeason.value.id
     );
-  });
+
+    console.log('Weeks loaded:', weeks.value);
+  }
 });
 </script>
 
@@ -47,6 +48,7 @@ onMounted(async () => {
 
     <div v-if="selectedSeason">
       <p class="text-gray-500">Weeks for: {{ selectedSeason.name }}</p>
+
       <div class="mt-4 flex flex-wrap gap-3" v-if="weeks.length">
         <div
           v-for="week in weeks"
@@ -54,10 +56,22 @@ onMounted(async () => {
           class="bg-white shadow rounded p-4 w-full sm:w-1/2 md:w-1/3"
         >
           <h3 class="font-bold text-lg mb-2">{{ week.name }}</h3>
-          <p class="text-sm text-gray-500">{{ week.properties.weekDate }}</p>
-          <p class="text-sm text-gray-400">
-            Games: {{ week.properties.matches?.length || 0 }}
+          <p class="text-sm text-gray-500">
+            {{ week.properties.weekDate }}
           </p>
+
+          <ul class="mt-3 space-y-2">
+            <li
+              v-for="(match, index) in week.properties.matches?.items || []"
+              :key="index"
+              class="text-sm text-gray-700"
+            >
+              {{ match.content.properties.homeTeam }}
+              {{ match.content.properties.homeScore }} -
+              {{ match.content.properties.awayScore }}
+              {{ match.content.properties.awayTeam }}
+            </li>
+          </ul>
         </div>
       </div>
     </div>
