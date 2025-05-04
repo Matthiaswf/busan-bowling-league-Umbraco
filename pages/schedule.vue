@@ -30,6 +30,48 @@ onMounted(async () => {
     console.log('Weeks loaded:', weeks.value);
   }
 });
+const computedStats = computed(() => {
+  const statsMap = {};
+
+  for (const week of weeks.value) {
+    const matches = week.properties.matches?.items || [];
+
+    for (const match of matches) {
+      const game = match.content?.properties;
+      if (!game) continue;
+
+      const home = game.homeTeam?.[0]?.id;
+      const away = game.awayTeam?.[0]?.id;
+      const homeScore = game.homeScore;
+      const awayScore = game.awayScore;
+
+      if (!home || !away) continue;
+
+      // Ensure team entries exist
+      if (!statsMap[home]) statsMap[home] = { gp: 0, w: 0, l: 0, pts: 0 };
+      if (!statsMap[away]) statsMap[away] = { gp: 0, w: 0, l: 0, pts: 0 };
+
+      // Count game
+      statsMap[home].gp += 1;
+      statsMap[away].gp += 1;
+
+      // Win/loss logic
+      if (homeScore > awayScore) {
+        statsMap[home].w += 1;
+        statsMap[home].pts += 1;
+        statsMap[away].l += 1;
+      } else if (awayScore > homeScore) {
+        statsMap[away].w += 1;
+        statsMap[away].pts += 1;
+        statsMap[home].l += 1;
+      } else {
+        // Optional: count draws here
+      }
+    }
+  }
+
+  return statsMap;
+});
 </script>
 
 <template>
@@ -127,5 +169,49 @@ onMounted(async () => {
         </div>
       </div>
     </div>
+    <section class="page-section mt-12">
+      <h2 class="section-title mb-4">Standings</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm text-left border">
+          <thead class="bg-gray-100 text-gray-700">
+            <tr>
+              <th class="p-2 border">Team</th>
+              <th class="p-2 border text-center">GP</th>
+              <th class="p-2 border text-center">W</th>
+              <th class="p-2 border text-center">L</th>
+              <th class="p-2 border text-center">Pts</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="team in Object.values(teamLookup)"
+              :key="team.id"
+              class="border-t hover:bg-gray-50"
+            >
+              <td class="p-2 border">
+                <NuxtLink
+                  :to="`/teams/${team.name.toLowerCase().replace(/\s+/g, '-')}`"
+                  class="text-blue-700 hover:underline"
+                >
+                  {{ team.name }}
+                </NuxtLink>
+              </td>
+              <td class="p-2 border text-center">
+                {{ computedStats[team.id]?.gp || 0 }}
+              </td>
+              <td class="p-2 border text-center">
+                {{ computedStats[team.id]?.w || 0 }}
+              </td>
+              <td class="p-2 border text-center">
+                {{ computedStats[team.id]?.l || 0 }}
+              </td>
+              <td class="p-2 border text-center">
+                {{ computedStats[team.id]?.pts || 0 }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
   </section>
 </template>
