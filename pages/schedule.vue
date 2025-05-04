@@ -1,19 +1,25 @@
 <script setup>
+import { formatDate } from '~/utils/formatDate';
+
 const { get } = useApi();
 const seasons = ref([]);
 const selectedSeason = ref(null);
 const weeks = ref([]);
+const teamLookup = ref({});
 
 onMounted(async () => {
-  // Step 1: fetch all content
   const data = await get('/umbraco/delivery/api/v1/content');
   const items = data?.items || [];
+
+  // Step 1: create lookup of all teams by ID
+  const teams = items.filter((item) => item.contentType === 'team');
+  teamLookup.value = Object.fromEntries(teams.map((t) => [t.id, t]));
 
   // Step 2: filter out seasons
   seasons.value = items.filter((item) => item.contentType === 'season');
   selectedSeason.value = seasons.value[0] || null;
 
-  // Step 3: get weeks manually based on parent ID
+  // Step 3: get weeks based on season ID
   if (selectedSeason.value) {
     weeks.value = items.filter(
       (item) =>
@@ -55,9 +61,9 @@ onMounted(async () => {
           :key="week.id"
           class="bg-white shadow rounded p-4 w-full sm:w-1/2 md:w-1/3"
         >
-          <h3 class="font-bold text-lg mb-2">{{ week.name }}</h3>
-          <p class="text-sm text-gray-500">
-            {{ week.properties.weekDate }}
+          <h3>{{ week.name }}</h3>
+          <p class="text-sm text-gray-600">
+            {{ formatDate(week.properties.weekDate) }}
           </p>
 
           <ul class="mt-3 space-y-2">
@@ -66,10 +72,10 @@ onMounted(async () => {
               :key="index"
               class="text-sm text-gray-700"
             >
-              {{ match.content.properties.homeTeam }}
+              {{ match.content.properties.homeTeam?.[0]?.name || '—' }}
               {{ match.content.properties.homeScore }} -
               {{ match.content.properties.awayScore }}
-              {{ match.content.properties.awayTeam }}
+              {{ match.content.properties.awayTeam?.[0]?.name || '—' }}
             </li>
           </ul>
         </div>
