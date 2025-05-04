@@ -72,10 +72,39 @@ onMounted(async () => {
               :key="index"
               class="text-sm text-gray-700"
             >
-              {{ match.content.properties.homeTeam?.[0]?.name || '—' }}
-              {{ match.content.properties.homeScore }} -
-              {{ match.content.properties.awayScore }}
-              {{ match.content.properties.awayTeam?.[0]?.name || '—' }}
+              <div
+                v-if="match?.content"
+                class="flex items-center gap-2 flex-wrap"
+              >
+                <img
+                  v-if="
+                    teamLookup[match.content.properties.homeTeam?.[0]?.id]
+                      ?.properties.logo?.[0]?.url
+                  "
+                  :src="`http://localhost:64203${
+                    teamLookup[match.content.properties.homeTeam?.[0]?.id]
+                      ?.properties.logo[0].url
+                  }`"
+                  alt="Home Team Logo"
+                  class="w-6 h-6 object-contain"
+                />
+                {{ match.content.properties.homeTeam?.[0]?.name || '—' }}
+                {{ match.content.properties.homeScore }} -
+                {{ match.content.properties.awayScore }}
+                <img
+                  v-if="
+                    teamLookup[match.content.properties.awayTeam?.[0]?.id]
+                      ?.properties.logo?.[0]?.url
+                  "
+                  :src="`http://localhost:64203${
+                    teamLookup[match.content.properties.awayTeam?.[0]?.id]
+                      ?.properties.logo[0].url
+                  }`"
+                  alt="Away Team Logo"
+                  class="w-6 h-6 object-contain"
+                />
+                {{ match.content.properties.awayTeam?.[0]?.name || '—' }}
+              </div>
             </li>
           </ul>
         </div>
