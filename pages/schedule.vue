@@ -70,41 +70,58 @@ onMounted(async () => {
             <li
               v-for="(match, index) in week.properties.matches?.items || []"
               :key="index"
-              class="text-sm text-gray-700"
+              class="text-sm text-gray-700 flex items-center gap-2 flex-wrap"
             >
-              <div
-                v-if="match?.content"
-                class="flex items-center gap-2 flex-wrap"
-              >
+              <!-- Home Team -->
+              <template v-if="match.content.properties.homeTeam?.[0]">
                 <img
                   v-if="
-                    teamLookup[match.content.properties.homeTeam?.[0]?.id]
-                      ?.properties.logo?.[0]?.url
+                    teamLookup[match.content.properties.homeTeam[0].id]
+                      ?.properties?.logo?.[0]?.url
                   "
                   :src="`http://localhost:64203${
-                    teamLookup[match.content.properties.homeTeam?.[0]?.id]
-                      ?.properties.logo[0].url
+                    teamLookup[match.content.properties.homeTeam[0].id]
+                      .properties.logo[0].url
                   }`"
-                  alt="Home Team Logo"
-                  class="w-6 h-6 object-contain"
+                  alt="Home Logo"
+                  class="w-5 h-5 object-contain"
                 />
-                {{ match.content.properties.homeTeam?.[0]?.name || '—' }}
-                {{ match.content.properties.homeScore }} -
-                {{ match.content.properties.awayScore }}
+                <NuxtLink
+                  :to="`/teams/${match.content.properties.homeTeam[0].name
+                    .toLowerCase()
+                    .replace(/\s+/g, '-')}`"
+                  class="hover:underline text-blue-700"
+                >
+                  {{ match.content.properties.homeTeam[0].name }}
+                </NuxtLink>
+              </template>
+
+              {{ match.content.properties.homeScore }} -
+              {{ match.content.properties.awayScore }}
+
+              <!-- Away Team -->
+              <template v-if="match.content.properties.awayTeam?.[0]">
+                <NuxtLink
+                  :to="`/teams/${match.content.properties.awayTeam[0].name
+                    .toLowerCase()
+                    .replace(/\s+/g, '-')}`"
+                  class="hover:underline text-blue-700"
+                >
+                  {{ match.content.properties.awayTeam[0].name }}
+                </NuxtLink>
                 <img
                   v-if="
-                    teamLookup[match.content.properties.awayTeam?.[0]?.id]
-                      ?.properties.logo?.[0]?.url
+                    teamLookup[match.content.properties.awayTeam[0].id]
+                      ?.properties?.logo?.[0]?.url
                   "
                   :src="`http://localhost:64203${
-                    teamLookup[match.content.properties.awayTeam?.[0]?.id]
-                      ?.properties.logo[0].url
+                    teamLookup[match.content.properties.awayTeam[0].id]
+                      .properties.logo[0].url
                   }`"
-                  alt="Away Team Logo"
-                  class="w-6 h-6 object-contain"
+                  alt="Away Logo"
+                  class="w-5 h-5 object-contain"
                 />
-                {{ match.content.properties.awayTeam?.[0]?.name || '—' }}
-              </div>
+              </template>
             </li>
           </ul>
         </div>
