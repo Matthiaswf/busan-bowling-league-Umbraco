@@ -72,6 +72,14 @@ const computedStats = computed(() => {
 
   return statsMap;
 });
+const sortedTeams = computed(() => {
+  return Object.values(teamLookup.value).sort((a, b) => {
+    const aStats = computedStats.value[a.id] || { pts: 0 };
+    const bStats = computedStats.value[b.id] || { pts: 0 };
+
+    return bStats.pts - aStats.pts; // descending order
+  });
+});
 </script>
 
 <template>
@@ -169,6 +177,8 @@ const computedStats = computed(() => {
         </div>
       </div>
     </div>
+
+    <!-- Standings -->
     <section class="page-section mt-12">
       <h2 class="section-title mb-4">Standings</h2>
       <div class="overflow-x-auto">
@@ -184,7 +194,7 @@ const computedStats = computed(() => {
           </thead>
           <tbody>
             <tr
-              v-for="team in Object.values(teamLookup)"
+              v-for="team in sortedTeams"
               :key="team.id"
               class="border-t hover:bg-gray-50"
             >
