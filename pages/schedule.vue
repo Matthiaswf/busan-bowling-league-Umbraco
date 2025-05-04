@@ -14,6 +14,14 @@ onMounted(async () => {
   selectedSeason.value = seasons.value[0] || null;
 
   console.log('All seasons:', seasons.value);
+
+  const weeks = computed(() => {
+    return (
+      selectedSeason.value?.children?.filter(
+        (child) => child.contentType === 'week'
+      ) || []
+    );
+  });
 });
 </script>
 
@@ -39,6 +47,19 @@ onMounted(async () => {
 
     <div v-if="selectedSeason">
       <p class="text-gray-500">Weeks for: {{ selectedSeason.name }}</p>
+      <div class="mt-4 flex flex-wrap gap-3" v-if="weeks.length">
+        <div
+          v-for="week in weeks"
+          :key="week.id"
+          class="bg-white shadow rounded p-4 w-full sm:w-1/2 md:w-1/3"
+        >
+          <h3 class="font-bold text-lg mb-2">{{ week.name }}</h3>
+          <p class="text-sm text-gray-500">{{ week.properties.weekDate }}</p>
+          <p class="text-sm text-gray-400">
+            Games: {{ week.properties.matches?.length || 0 }}
+          </p>
+        </div>
+      </div>
     </div>
   </section>
 </template>
