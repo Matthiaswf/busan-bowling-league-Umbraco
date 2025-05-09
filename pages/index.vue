@@ -66,6 +66,10 @@ onMounted(async () => {
   </section>
 
   <section class="page-section text-center">
+    <NuxtLink to="/players" class="btn-primary"> View All Players → </NuxtLink>
+  </section>
+
+  <section class="page-section text-center">
     <NuxtLink to="/standings" class="btn-primary">
       View Full Standings & Schedule →
     </NuxtLink>
