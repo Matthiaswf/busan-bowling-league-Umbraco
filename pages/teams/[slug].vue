@@ -33,7 +33,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <section class="page-section" v-if="team">
+  <section class="page-section overflow-x-hidden" v-if="team">
     <img
       v-if="team.properties.logo"
       :src="`http://localhost:64203${team.properties.logo[0]?.url}`"
@@ -63,24 +63,24 @@ onMounted(async () => {
   </section>
 
   <!-- Players Section -->
-  <div v-if="teamPlayers.length" class="mt-10">
-    <h2 class="text-xl font-semibold mb-4">Players</h2>
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-      <div
-        v-for="player in teamPlayers"
-        :key="player.id"
-        class="bg-gray-100 rounded p-3 text-center"
-      >
-        <img
-          v-if="player.properties.avatar?.[0]?.url"
-          :src="`http://localhost:64203${player.properties.avatar[0].url}`"
-          alt="Avatar"
-          class="w-16 h-16 object-cover rounded-full mx-auto mb-2"
-        />
-        <p class="font-bold">{{ player.name }}</p>
-        <p class="text-sm text-gray-500">{{ player.properties.position }}</p>
-      </div>
-    </div>
+  <div
+    class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-10 w-full overflow-hidden"
+  >
+    <NuxtLink
+      v-for="player in teamPlayers"
+      :key="player.id"
+      :to="`/players/${player.name.toLowerCase().replace(/\s+/g, '-')}`"
+      class="bg-gray-100 rounded p-3 text-center hover:bg-gray-200 transition"
+    >
+      <img
+        v-if="player.properties.avatar?.[0]?.url"
+        :src="`http://localhost:64203${player.properties.avatar[0].url}`"
+        alt="Avatar"
+        class="w-16 h-16 object-cover rounded-full mx-auto mb-2"
+      />
+      <p class="font-bold">{{ player.name }}</p>
+      <p class="text-sm text-gray-500">{{ player.properties.position }}</p>
+    </NuxtLink>
   </div>
 
   <section
