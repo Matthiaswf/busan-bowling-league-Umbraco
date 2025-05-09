@@ -4,17 +4,31 @@ const route = useRoute();
 
 const { get } = useApi();
 const team = ref(null);
+const allPlayers = ref([]);
+const teamPlayers = computed(() =>
+  allPlayers.value.filter((p) => p.properties.team?.[0]?.id === team.value?.id)
+);
 
 onMounted(async () => {
-  const data = await get('/umbraco/delivery/api/v1/content');
+  const data = await get('/umbraco/delivery/api/v1/content?take=100');
   const items = data?.items || [];
-  console.log(route.params);
 
   team.value = items.find(
     (t) =>
+      t.contentType === 'team' &&
       t.name.toLowerCase().replace(/ /g, '-') ===
-      route.params.slug.toLowerCase()
+        route.params.slug.toLowerCase()
   );
+
+  const playersFolder = items.find((i) => i.contentType === 'playersFolder');
+
+  if (playersFolder) {
+    allPlayers.value = items.filter(
+      (p) =>
+        p.contentType === 'player' &&
+        p.route?.startItem?.id === playersFolder.id
+    );
+  }
 });
 </script>
 
@@ -48,7 +62,31 @@ onMounted(async () => {
     </div>
   </section>
 
-  <section v-else class="page-section text-center">
-    <p class="text-gray-400">Team not found.</p>
+  <!-- Players Section -->
+  <div v-if="teamPlayers.length" class="mt-10">
+    <h2 class="text-xl font-semibold mb-4">Players</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div
+        v-for="player in teamPlayers"
+        :key="player.id"
+        class="bg-gray-100 rounded p-3 text-center"
+      >
+        <img
+          v-if="player.properties.avatar?.[0]?.url"
+          :src="`http://localhost:64203${player.properties.avatar[0].url}`"
+          alt="Avatar"
+          class="w-16 h-16 object-cover rounded-full mx-auto mb-2"
+        />
+        <p class="font-bold">{{ player.name }}</p>
+        <p class="text-sm text-gray-500">{{ player.properties.position }}</p>
+      </div>
+    </div>
+  </div>
+
+  <section
+    v-if="team && teamPlayers.length === 0"
+    class="page-section text-center mt-8"
+  >
+    <p class="text-gray-400">No players found for this team.</p>
   </section>
 </template>
