@@ -60,7 +60,10 @@ onMounted(async () => {
           {{ team.name }}
         </NuxtLink>
 
-        <p class="text-gray-500 text-sm">{{ team.properties.bio }}</p>
+        <p
+          class="text-gray-500 text-sm"
+          v-html="team.properties.bio?.markup"
+        ></p>
       </div>
     </div>
   </section>
