@@ -96,11 +96,14 @@ onMounted(async () => {
 });
 
 const allMatches = computed(() => {
+  if (!team.value) return [];
+
   const matches = [];
 
   for (const item of weeks.value) {
-    const games = item.properties.matches?.items || [];
-    for (const g of games) {
+    const matchItems = item.properties.matches?.items || [];
+
+    for (const g of matchItems) {
       const props = g.content?.properties;
       if (!props) continue;
 
@@ -109,6 +112,9 @@ const allMatches = computed(() => {
       const individualGames = props.games?.items || [];
 
       if (!home || !away || !individualGames.length) continue;
+
+      // ✅ Filter to only include matches where current team was involved
+      if (home.id !== team.value.id && away.id !== team.value.id) continue;
 
       let homeWins = 0;
       let awayWins = 0;
