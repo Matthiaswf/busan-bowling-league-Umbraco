@@ -128,15 +128,19 @@ const playerStats = computed(() => {
 
 <template>
   <section class="page-section" v-if="player">
-    <div class="text-center">
-      <img
-        v-if="player.properties.avatar?.[0]?.url"
-        :src="`http://localhost:64203${player.properties.avatar[0].url}`"
-        alt="Avatar"
-        class="w-24 h-24 object-cover rounded-full mx-auto mb-4"
-      />
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ player.name }}</h1>
-      <p class="text-sm text-gray-500 mb-1">
+    <div class="flex flex-col items-center text-center">
+      <div
+        class="w-36 h-36 rounded-full overflow-hidden border-4 border-gradient ring ring-offset-2 ring-gray-300 mb-4 shadow-md"
+      >
+        <img
+          v-if="player.properties.avatar?.[0]?.url"
+          :src="`http://localhost:64203${player.properties.avatar[0].url}`"
+          alt="Avatar"
+          class="w-full h-full object-cover"
+        />
+      </div>
+      <h1 class="text-4xl font-bold text-gray-900 mb-1">{{ player.name }}</h1>
+      <p class="text-base text-gray-600">
         {{ player.properties.position?.[0]?.name || 'No position' }}
       </p>
     </div>
@@ -144,40 +148,47 @@ const playerStats = computed(() => {
     <div
       v-if="player.properties.bio"
       v-html="player.properties.bio.markup"
-      class="prose mx-auto my-6"
+      class="prose prose-sm sm:prose-base mx-auto my-8"
     ></div>
 
     <!-- Stats Section -->
-    <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-center">
-      <div class="bg-blue-50 rounded p-4 shadow">
-        <div class="font-bold text-lg">{{ playerStats.gamesPlayed }}</div>
-        <div class="text-gray-600">Games Played</div>
-      </div>
-      <div class="bg-blue-50 rounded p-4 shadow">
-        <div class="font-bold text-lg">{{ playerStats.averageScore }}</div>
-        <div class="text-gray-600">Avg</div>
+    <div class="mt-10 w-full flex justify-center">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-center">
+        <div class="bg-white rounded-xl border p-6 shadow-sm">
+          <div class="text-2xl font-bold text-gray-900">
+            {{ playerStats.gamesPlayed }}
+          </div>
+          <div class="text-gray-600 mt-1">Games Played</div>
+        </div>
+        <div class="bg-white rounded-xl border p-6 shadow-sm">
+          <div class="text-2xl font-bold text-gray-900">
+            {{ playerStats.averageScore }}
+          </div>
+          <div class="text-gray-600 mt-1">Avg Score</div>
+        </div>
       </div>
     </div>
 
-    <section v-if="recentMatches.length" class="mt-10">
-      <h2 class="text-xl font-semibold text-gray-800 mb-4">Recent Matches</h2>
-      <ul class="space-y-2 text-sm">
+    <!-- Recent Matches -->
+    <section v-if="recentMatches.length" class="mt-12 w-full">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">
+        Recent Matches
+      </h2>
+      <ul class="space-y-3 max-w-2xl mx-auto w-full px-4">
         <li
           v-for="(match, index) in recentMatches"
           :key="index"
-          class="bg-gray-50 rounded p-3 flex justify-center items-center text-center shadow-sm"
+          class="bg-gray-50 rounded-xl p-4 flex items-center justify-between shadow-sm"
         >
-          <div class="grid grid-cols-3 w-full text-center">
-            <span class="text-gray-700 font-medium truncate">
-              {{ match.home.name }}
-            </span>
-            <span class="text-center font-semibold">
-              {{ match.homeWins }} - {{ match.awayWins }}
-            </span>
-            <span class="text-gray-700 font-medium truncate">
-              {{ match.away.name }}
-            </span>
-          </div>
+          <span class="font-medium text-gray-700 w-1/3 text-left truncate">
+            {{ match.home.name }}
+          </span>
+          <span class="font-semibold text-lg whitespace-nowrap">
+            {{ match.homeWins }} - {{ match.awayWins }}
+          </span>
+          <span class="font-medium text-gray-700 w-1/3 text-right truncate">
+            {{ match.away.name }}
+          </span>
         </li>
       </ul>
     </section>
