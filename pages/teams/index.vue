@@ -90,12 +90,17 @@ const computedStats = computed(() => {
         :to="`/teams/${team.name.toLowerCase().replace(/\s+/g, '-')}`"
         class="bg-white rounded-2xl shadow-lg p-6 text-center hover:shadow-xl transition duration-300 block"
       >
-        <img
-          v-if="team.properties.logo?.[0]?.url"
-          :src="`http://localhost:64203${team.properties.logo[0].url}`"
-          alt="Team Logo"
-          class="w-24 h-24 object-contain mx-auto mb-4"
-        />
+        <div
+          class="w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-4 rounded-full border-2 border-gray-200 shadow overflow-hidden"
+        >
+          <img
+            v-if="team.properties.logo?.[0]?.url"
+            :src="`http://localhost:64203${team.properties.logo[0].url}`"
+            alt="Team Logo"
+            class="w-full h-full object-cover"
+          />
+        </div>
+
         <h2 class="text-2xl font-semibold text-gray-800 mb-1">
           {{ team.name }}
         </h2>

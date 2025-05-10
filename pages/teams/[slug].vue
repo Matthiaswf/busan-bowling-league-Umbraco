@@ -156,12 +156,17 @@ const allMatches = computed(() => {
   <section v-if="team" class="page-section overflow-x-hidden">
     <!-- Team Header -->
     <div class="text-center mb-6">
-      <img
-        v-if="team.properties.logo"
-        :src="`http://localhost:64203${team.properties.logo[0]?.url}`"
-        alt="Team Logo"
-        class="w-24 h-24 object-contain mx-auto mb-4"
-      />
+      <div
+        class="w-40 h-40 sm:w-52 sm:h-52 mx-auto mb-6 rounded-full border-4 border-gray-200 shadow-lg overflow-hidden"
+      >
+        <img
+          v-if="team.properties.logo"
+          :src="`http://localhost:64203${team.properties.logo[0]?.url}`"
+          alt="Team Logo"
+          class="w-full h-full object-cover"
+        />
+      </div>
+
       <h1 class="post-title">{{ team.name }}</h1>
       <div
         class="text-gray-600 text-sm max-w-2xl mx-auto"
