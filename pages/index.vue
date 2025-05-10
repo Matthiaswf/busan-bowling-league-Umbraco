@@ -192,7 +192,7 @@ const sortedTeams = computed(() => {
 
   <section class="text-center mt-6">
     <NuxtLink to="/standings" class="btn-primary">
-      View Full Standings & Schedule →
+      View Full Standings →
     </NuxtLink>
   </section>
 

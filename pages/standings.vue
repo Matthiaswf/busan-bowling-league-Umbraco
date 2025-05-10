@@ -104,8 +104,6 @@ const sortedTeams = computed(() => {
 
 <template>
   <section class="page-section">
-    <h1 class="section-title text-center">Match Schedule</h1>
-
     <div v-if="seasons.length" class="flex gap-2 flex-wrap justify-center mb-8">
       <button
         v-for="season in seasons"
