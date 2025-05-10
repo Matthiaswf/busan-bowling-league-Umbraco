@@ -108,7 +108,9 @@ const allMatches = computed(() => {
         class="w-16 h-16 object-cover rounded-full mx-auto mb-2"
       />
       <p class="font-bold">{{ player.name }}</p>
-      <p class="text-sm text-gray-500">{{ player.properties.position }}</p>
+      <p class="text-sm text-gray-500">
+        {{ player.properties.position?.[0]?.name || 'No position' }}
+      </p>
     </NuxtLink>
   </div>
 

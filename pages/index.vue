@@ -205,7 +205,7 @@ const sortedTeams = computed(() => {
         />
         <p class="font-bold">{{ player.name }}</p>
         <p class="text-sm text-gray-500">
-          {{ player.properties.position || 'No position' }}
+          {{ player.properties.position?.[0]?.name || 'No position' }}
         </p>
       </NuxtLink>
     </div>

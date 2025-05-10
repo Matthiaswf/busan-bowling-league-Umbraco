@@ -81,7 +81,9 @@ const recentGames = computed(() => {
       class="w-24 h-24 object-cover rounded-full mb-4"
     />
     <h1 class="text-2xl font-bold mb-2">{{ player.name }}</h1>
-    <p class="text-gray-500 mb-4">{{ player.properties.position }}</p>
+    <p class="text-sm text-gray-500">
+      {{ player.properties.position?.[0]?.name || 'No position' }}
+    </p>
 
     <div
       v-if="player.properties.bio"
