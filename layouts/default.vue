@@ -1,7 +1,9 @@
 <template>
   <div class="flex flex-col min-h-screen">
-    <header class="site-header bg-white shadow">
-      <div class="nav-container">
+    <header class="site-header bg-white shadow py-4">
+      <div
+        class="max-w-screen-lg mx-auto px-6 flex items-center justify-between"
+      >
         <NuxtLink to="/" class="flex items-center gap-3">
           <img src="/assets/navbar/beer.svg" alt="Logo" class="w-8 h-8" />
           <h1
@@ -13,7 +15,9 @@
       </div>
     </header>
 
-    <div class="nav-links-bar mt-3">
+    <div
+      class="nav-links-bar mt-3 flex justify-center gap-6 text-sm font-medium text-gray-700"
+    >
       <NuxtLink to="/standings" class="nav-link">Standings</NuxtLink>
       <NuxtLink to="/teams" class="nav-link">Teams</NuxtLink>
       <NuxtLink to="/players" class="nav-link">Players</NuxtLink>
