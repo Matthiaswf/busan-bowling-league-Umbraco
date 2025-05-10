@@ -39,7 +39,9 @@ onMounted(async () => {
           class="w-20 h-20 rounded-full object-cover mx-auto mb-2"
         />
         <p class="font-bold">{{ player.name }}</p>
-        <p class="text-sm text-gray-500">{{ player.properties.position }}</p>
+        <p class="text-sm text-gray-500">
+          {{ player.properties.position?.[0]?.name || 'No position' }}
+        </p>
         <p class="text-sm text-gray-400 italic">
           {{
             teamLookup[player.properties.team?.[0]?.id]?.name ||
