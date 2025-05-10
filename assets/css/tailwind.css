@@ -37,7 +37,13 @@
   }
 
   .nav-link {
-    @apply text-gray-700 font-medium hover:underline;
+    @apply text-gray-700 font-medium transition-colors duration-200;
+  }
+
+  .nav-link:hover {
+    background: linear-gradient(45deg, #ff8c00, #ff4500 90%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .nav-container {
