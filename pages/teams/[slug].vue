@@ -5,6 +5,8 @@ const route = useRoute();
 const { get } = useApi();
 const team = ref(null);
 const allPlayers = ref([]);
+const weeks = ref([]);
+
 const teamPlayers = computed(() =>
   allPlayers.value.filter((p) => p.properties.team?.[0]?.id === team.value?.id)
 );
@@ -12,6 +14,7 @@ const teamPlayers = computed(() =>
 onMounted(async () => {
   const data = await get('/umbraco/delivery/api/v1/content?take=100');
   const items = data?.items || [];
+  weeks.value = items.filter((i) => i.contentType === 'week');
 
   team.value = items.find(
     (t) =>
@@ -29,6 +32,32 @@ onMounted(async () => {
         p.route?.startItem?.id === playersFolder.id
     );
   }
+});
+const allMatches = computed(() => {
+  const matches = [];
+
+  for (const item of weeks.value) {
+    const games = item.properties.matches?.items || [];
+    for (const g of games) {
+      const props = g.content?.properties;
+      if (!props) continue;
+
+      const home = props.homeTeam?.[0];
+      const away = props.awayTeam?.[0];
+      if (!home || !away) continue;
+
+      if (home.id === team.value?.id || away.id === team.value?.id) {
+        matches.push({
+          home,
+          away,
+          homeScore: props.homeScore,
+          awayScore: props.awayScore,
+        });
+      }
+    }
+  }
+
+  return matches;
 });
 </script>
 
@@ -88,5 +117,25 @@ onMounted(async () => {
     class="page-section text-center mt-8"
   >
     <p class="text-gray-400">No players found for this team.</p>
+  </section>
+
+  <!-- Match History Section -->
+  <section v-if="allMatches.length" class="mt-12">
+    <h2 class="text-xl font-semibold mb-4">Match History</h2>
+    <ul class="space-y-2 text-sm">
+      <li
+        v-for="(match, index) in allMatches"
+        :key="index"
+        class="bg-gray-100 rounded p-3"
+      >
+        <span class="font-bold text-blue-700">
+          {{ match.home.name }}
+        </span>
+        {{ match.homeScore }} - {{ match.awayScore }}
+        <span class="font-bold text-blue-700">
+          {{ match.away.name }}
+        </span>
+      </li>
+    </ul>
   </section>
 </template>
