@@ -128,9 +128,9 @@ const playerStats = computed(() => {
 
 <template>
   <section class="page-section" v-if="player">
-    <div class="flex flex-col items-center text-center">
+    <div class="max-w-4xl mx-auto flex flex-col items-center text-center">
       <div
-        class="w-36 h-36 rounded-full overflow-hidden border-4 border-gradient ring ring-offset-2 ring-gray-300 mb-4 shadow-md"
+        class="w-36 h-36 rounded-full overflow-hidden border-4 border-gray-200 shadow-md mb-4"
       >
         <img
           v-if="player.properties.avatar?.[0]?.url"
@@ -139,16 +139,34 @@ const playerStats = computed(() => {
           class="w-full h-full object-cover"
         />
       </div>
+
       <h1 class="text-4xl font-bold text-gray-900 mb-1">{{ player.name }}</h1>
-      <p class="text-base text-gray-600">
-        {{ player.properties.position?.[0]?.name || 'No position' }}
+
+      <p class="text-base text-gray-600 mb-2">
+        <NuxtLink
+          v-if="player.properties.team?.[0]"
+          :to="`/teams/${player.properties.team[0].name
+            .toLowerCase()
+            .replace(/\\s+/g, '-')}`"
+          class="nav-link"
+        >
+          {{ player.properties.team[0].name }}
+        </NuxtLink>
+        <span
+          v-if="player.properties.team?.[0] && player.properties.position?.[0]"
+        >
+          •
+        </span>
+        <span>{{
+          player.properties.position?.[0]?.name || 'No position'
+        }}</span>
       </p>
     </div>
 
     <div
       v-if="player.properties.bio"
       v-html="player.properties.bio.markup"
-      class="prose prose-sm sm:prose-base mx-auto my-8"
+      class="prose prose-sm sm:prose-base mx-auto my-8 max-w-4xl"
     ></div>
 
     <!-- Stats Section -->
@@ -170,11 +188,11 @@ const playerStats = computed(() => {
     </div>
 
     <!-- Recent Matches -->
-    <section v-if="recentMatches.length" class="mt-12 w-full">
+    <section v-if="recentMatches.length" class="mt-12 w-full max-w-4xl mx-auto">
       <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">
         Recent Matches
       </h2>
-      <ul class="space-y-3 max-w-2xl mx-auto w-full px-4">
+      <ul class="space-y-3 w-full px-4">
         <li
           v-for="(match, index) in recentMatches"
           :key="index"
