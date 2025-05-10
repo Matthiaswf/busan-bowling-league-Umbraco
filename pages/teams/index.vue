@@ -82,32 +82,29 @@ const computedStats = computed(() => {
 
 <template>
   <section class="page-section">
-    <h1 class="section-title text-center">Teams</h1>
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
-      <div
+    <h1 class="section-title text-center mb-8">Teams</h1>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <NuxtLink
         v-for="team in teams"
         :key="team.id"
-        class="bg-white rounded shadow p-4 text-center hover:shadow-md transition duration-200"
+        :to="`/teams/${team.name.toLowerCase().replace(/\s+/g, '-')}`"
+        class="bg-white rounded-2xl shadow-lg p-6 text-center hover:shadow-xl transition duration-300 block"
       >
         <img
           v-if="team.properties.logo?.[0]?.url"
           :src="`http://localhost:64203${team.properties.logo[0].url}`"
           alt="Team Logo"
-          class="w-20 h-20 object-contain mx-auto mb-3"
+          class="w-24 h-24 object-contain mx-auto mb-4"
         />
-        <NuxtLink
-          :to="`/teams/${team.name.toLowerCase().replace(/\s+/g, '-')}`"
-          class="text-lg font-bold text-gray-900 nav-link block"
-        >
+        <h2 class="text-2xl font-semibold text-gray-800 mb-1">
           {{ team.name }}
-        </NuxtLink>
-
-        <p class="text-sm text-gray-500 mt-1">
-          {{ computedStats[team.id]?.w || 0 }} W •
-          {{ computedStats[team.id]?.l || 0 }} L •
+        </h2>
+        <p class="text-base text-gray-600 tracking-wide">
+          {{ computedStats[team.id]?.w || 0 }} W &nbsp;&bull;&nbsp;
+          {{ computedStats[team.id]?.l || 0 }} L &nbsp;&bull;&nbsp;
           {{ computedStats[team.id]?.pts || 0 }} Pts
         </p>
-      </div>
+      </NuxtLink>
     </div>
   </section>
 </template>
