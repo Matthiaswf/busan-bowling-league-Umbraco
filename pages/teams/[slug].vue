@@ -1,8 +1,8 @@
 <script setup>
 import { useRoute } from 'vue-router';
 const route = useRoute();
-
 const { get } = useApi();
+
 const team = ref(null);
 const allPlayers = ref([]);
 const weeks = ref([]);
@@ -12,29 +12,64 @@ const teamPlayers = computed(() =>
 );
 
 const teamStats = computed(() => {
-  let wins = 0;
-  let losses = 0;
-  let gamesPlayed = allMatches.value.length;
-  let points = 0;
+  const stats = { gamesPlayed: 0, wins: 0, losses: 0, points: 0 };
 
-  for (const match of allMatches.value) {
-    const isHome = match.home.id === team.value?.id;
-    const isAway = match.away.id === team.value?.id;
+  for (const week of weeks.value) {
+    const matches = week.properties.matches?.items || [];
 
-    const teamScore = isHome ? match.homeScore : match.awayScore;
-    const opponentScore = isHome ? match.awayScore : match.homeScore;
+    for (const match of matches) {
+      const props = match.content?.properties;
+      const home = props?.homeTeam?.[0]?.id;
+      const away = props?.awayTeam?.[0]?.id;
+      const games = props?.games?.items || [];
 
-    if (teamScore > opponentScore) {
-      wins++;
-      points += 2; // or 3, depending on your league rules
-    } else if (teamScore < opponentScore) {
-      losses++;
-    } else {
-      points += 1; // if draws are possible and give 1 point
+      if (!home || !away || !games.length) continue;
+      if (home !== team.value?.id && away !== team.value?.id) continue;
+
+      stats.gamesPlayed += games.length;
+
+      let homeWins = 0;
+      let awayWins = 0;
+
+      for (const game of games) {
+        const scores = game.content?.properties?.playerScores?.items || [];
+        let homeTotal = 0;
+        let awayTotal = 0;
+
+        for (const score of scores) {
+          const s = score.content?.properties;
+          const playerId = s?.player?.[0]?.id;
+          const fullPlayer = allPlayers.value.find((p) => p.id === playerId);
+          const teamId = fullPlayer?.properties?.team?.[0]?.id;
+          const pts = s?.score || 0;
+
+          if (teamId === home) homeTotal += pts;
+          else if (teamId === away) awayTotal += pts;
+        }
+
+        if (homeTotal > awayTotal) homeWins++;
+        else if (awayTotal > homeTotal) awayWins++;
+      }
+
+      if (home === team.value?.id) {
+        if (homeWins > awayWins) {
+          stats.wins++;
+          stats.points++;
+        } else if (awayWins > homeWins) {
+          stats.losses++;
+        }
+      } else {
+        if (awayWins > homeWins) {
+          stats.wins++;
+          stats.points++;
+        } else if (homeWins > awayWins) {
+          stats.losses++;
+        }
+      }
     }
   }
 
-  return { gamesPlayed, wins, losses, points };
+  return stats;
 });
 
 onMounted(async () => {
@@ -59,6 +94,7 @@ onMounted(async () => {
     );
   }
 });
+
 const allMatches = computed(() => {
   const matches = [];
 
@@ -70,16 +106,39 @@ const allMatches = computed(() => {
 
       const home = props.homeTeam?.[0];
       const away = props.awayTeam?.[0];
-      if (!home || !away) continue;
+      const individualGames = props.games?.items || [];
 
-      if (home.id === team.value?.id || away.id === team.value?.id) {
-        matches.push({
-          home,
-          away,
-          homeScore: props.homeScore,
-          awayScore: props.awayScore,
-        });
+      if (!home || !away || !individualGames.length) continue;
+
+      let homeWins = 0;
+      let awayWins = 0;
+
+      for (const game of individualGames) {
+        const scores = game.content?.properties?.playerScores?.items || [];
+        let homeTotal = 0;
+        let awayTotal = 0;
+
+        for (const score of scores) {
+          const s = score.content?.properties;
+          const playerId = s?.player?.[0]?.id;
+          const fullPlayer = allPlayers.value.find((p) => p.id === playerId);
+          const teamId = fullPlayer?.properties?.team?.[0]?.id;
+          const pts = s?.score || 0;
+
+          if (teamId === home.id) homeTotal += pts;
+          else if (teamId === away.id) awayTotal += pts;
+        }
+
+        if (homeTotal > awayTotal) homeWins++;
+        else if (awayTotal > homeTotal) awayWins++;
       }
+
+      matches.push({
+        home,
+        away,
+        homeScore: homeWins,
+        awayScore: awayWins,
+      });
     }
   }
 
