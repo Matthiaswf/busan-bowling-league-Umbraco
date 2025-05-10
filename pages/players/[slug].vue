@@ -93,12 +93,12 @@ const playerStats = computed(() => {
         <div class="text-gray-600">Games Played</div>
       </div>
       <div class="bg-blue-50 rounded p-4">
-        <div class="font-bold text-lg">{{ playerStats.totalPoints }}</div>
-        <div class="text-gray-600">Total Points</div>
-      </div>
-      <div class="bg-blue-50 rounded p-4">
         <div class="font-bold text-lg">{{ playerStats.averageScore }}</div>
         <div class="text-gray-600">Avg. Points</div>
+      </div>
+      <div class="bg-blue-50 rounded p-4">
+        <div class="font-bold text-lg">{{ playerStats.totalPoints }}</div>
+        <div class="text-gray-600">Total Points</div>
       </div>
     </div>
   </section>
