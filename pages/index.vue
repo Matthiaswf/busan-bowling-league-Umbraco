@@ -189,10 +189,11 @@ const sortedTeams = computed(() => {
   <section class="page-section">
     <h2 class="section-title">Teams</h2>
     <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
-      <div
+      <NuxtLink
         v-for="team in teams"
         :key="team.id"
-        class="bg-white rounded-2xl shadow p-4 text-center hover:shadow-md transition"
+        :to="`/teams/${team.name.toLowerCase().replace(/ /g, '-')}`"
+        class="bg-white rounded-2xl shadow p-4 text-center hover:shadow-md transition block"
       >
         <img
           v-if="team.properties.logo"
@@ -200,17 +201,14 @@ const sortedTeams = computed(() => {
           alt="Team Logo"
           class="w-20 h-20 object-contain mx-auto mb-3"
         />
-        <NuxtLink
-          :to="`/teams/${team.name.toLowerCase().replace(/ /g, '-')}`"
-          class="font-semibold text-gray-800 hover:text-black transition"
-        >
+        <p class="font-semibold text-gray-800 hover:text-black transition">
           {{ team.name }}
-        </NuxtLink>
+        </p>
         <p
           class="text-gray-500 text-sm mt-1"
           v-html="team.properties.bio?.markup"
         ></p>
-      </div>
+      </NuxtLink>
     </div>
   </section>
 
