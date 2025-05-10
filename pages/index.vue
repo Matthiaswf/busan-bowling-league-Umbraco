@@ -2,13 +2,25 @@
 const { get } = useApi();
 const posts = ref([]);
 const teams = ref([]);
+const featuredPlayers = ref([]);
 
 onMounted(async () => {
-  const data = await get('/umbraco/delivery/api/v1/content');
+  const data = await get('/umbraco/delivery/api/v1/content?take=100');
   const items = data?.items || [];
 
   posts.value = items.filter((item) => item.contentType === 'post');
   teams.value = items.filter((item) => item.contentType === 'team');
+
+  const playersFolder = items.find((i) => i.contentType === 'playersFolder');
+  if (playersFolder) {
+    featuredPlayers.value = items
+      .filter(
+        (i) =>
+          i.contentType === 'player' &&
+          i.route?.startItem?.id === playersFolder.id
+      )
+      .slice(0, 3); // Limit to 3 players
+  }
 });
 </script>
 
@@ -65,6 +77,28 @@ onMounted(async () => {
           v-html="team.properties.bio?.markup"
         ></p>
       </div>
+    </div>
+  </section>
+  <section v-if="featuredPlayers.length" class="page-section">
+    <h2 class="section-title">Featured Players</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <NuxtLink
+        v-for="player in featuredPlayers"
+        :key="player.id"
+        :to="`/players/${player.name.toLowerCase().replace(/\s+/g, '-')}`"
+        class="bg-white p-4 rounded shadow text-center hover:bg-gray-50 transition"
+      >
+        <img
+          v-if="player.properties.avatar?.[0]?.url"
+          :src="`http://localhost:64203${player.properties.avatar[0].url}`"
+          alt="Avatar"
+          class="w-16 h-16 object-cover rounded-full mx-auto mb-2"
+        />
+        <p class="font-bold">{{ player.name }}</p>
+        <p class="text-sm text-gray-500">
+          {{ player.properties.position || 'No position' }}
+        </p>
+      </NuxtLink>
     </div>
   </section>
 
