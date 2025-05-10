@@ -1,66 +1,95 @@
 <script setup>
 import { formatDate } from '~/utils/formatDate';
-
 const { get } = useApi();
+
 const seasons = ref([]);
 const selectedSeason = ref(null);
 const weeks = ref([]);
+const allPlayers = ref([]);
 const teamLookup = ref({});
 
 onMounted(async () => {
-  const data = await get('/umbraco/delivery/api/v1/content');
+  const data = await get('/umbraco/delivery/api/v1/content?take=100');
   const items = data?.items || [];
 
-  const teams = items.filter((item) => item.contentType === 'team');
+  const teams = items.filter((i) => i.contentType === 'team');
   teamLookup.value = Object.fromEntries(teams.map((t) => [t.id, t]));
 
-  seasons.value = items.filter((item) => item.contentType === 'season');
+  const playersFolder = items.find((i) => i.contentType === 'playersFolder');
+  if (playersFolder) {
+    allPlayers.value = items.filter(
+      (i) =>
+        i.contentType === 'player' &&
+        i.route?.startItem?.id === playersFolder.id
+    );
+  }
+
+  seasons.value = items.filter((i) => i.contentType === 'season');
   selectedSeason.value = seasons.value[0] || null;
 
   if (selectedSeason.value) {
     weeks.value = items.filter(
-      (item) =>
-        item.contentType === 'week' &&
-        item.route?.startItem?.id === selectedSeason.value.id
+      (i) =>
+        i.contentType === 'week' &&
+        (i.route?.startItem?.id === selectedSeason.value.id ||
+          i.properties?.season?.[0]?.id === selectedSeason.value.id)
     );
   }
 });
 
 const computedStats = computed(() => {
   const statsMap = {};
-
   for (const week of weeks.value) {
     const matches = week.properties.matches?.items || [];
 
     for (const match of matches) {
-      const game = match.content?.properties;
-      if (!game) continue;
+      const props = match.content?.properties;
+      const home = props?.homeTeam?.[0]?.id;
+      const away = props?.awayTeam?.[0]?.id;
+      const games = props?.games?.items || [];
 
-      const home = game.homeTeam?.[0]?.id;
-      const away = game.awayTeam?.[0]?.id;
-      const homeScore = game.homeScore;
-      const awayScore = game.awayScore;
-
-      if (!home || !away) continue;
+      if (!home || !away || !games.length) continue;
 
       if (!statsMap[home]) statsMap[home] = { gp: 0, w: 0, l: 0, pts: 0 };
       if (!statsMap[away]) statsMap[away] = { gp: 0, w: 0, l: 0, pts: 0 };
 
-      statsMap[home].gp += 1;
-      statsMap[away].gp += 1;
+      statsMap[home].gp += games.length;
+      statsMap[away].gp += games.length;
 
-      if (homeScore > awayScore) {
+      let homeWins = 0;
+      let awayWins = 0;
+
+      for (const game of games) {
+        const scores = game.content?.properties?.playerScores?.items || [];
+        let homeTotal = 0;
+        let awayTotal = 0;
+
+        for (const score of scores) {
+          const s = score.content?.properties;
+          const playerId = s?.player?.[0]?.id;
+          const fullPlayer = allPlayers.value.find((p) => p.id === playerId);
+          const teamId = fullPlayer?.properties?.team?.[0]?.id;
+          const pts = s?.score || 0;
+
+          if (teamId === home) homeTotal += pts;
+          else if (teamId === away) awayTotal += pts;
+        }
+
+        if (homeTotal > awayTotal) homeWins++;
+        else if (awayTotal > homeTotal) awayWins++;
+      }
+
+      if (homeWins > awayWins) {
         statsMap[home].w += 1;
         statsMap[home].pts += 1;
         statsMap[away].l += 1;
-      } else if (awayScore > homeScore) {
+      } else if (awayWins > homeWins) {
         statsMap[away].w += 1;
         statsMap[away].pts += 1;
         statsMap[home].l += 1;
       }
     }
   }
-
   return statsMap;
 });
 
@@ -77,7 +106,6 @@ const sortedTeams = computed(() => {
   <section class="page-section">
     <h1 class="section-title text-center">Match Schedule</h1>
 
-    <!-- Season Selector -->
     <div v-if="seasons.length" class="flex gap-2 flex-wrap justify-center mb-8">
       <button
         v-for="season in seasons"
@@ -94,7 +122,6 @@ const sortedTeams = computed(() => {
       </button>
     </div>
 
-    <!-- Week Cards -->
     <div v-if="weeks.length" class="flex flex-wrap gap-6 justify-center">
       <div
         v-for="week in weeks"
@@ -103,20 +130,23 @@ const sortedTeams = computed(() => {
       >
         <h3 class="text-lg font-bold text-gray-900 mb-1">{{ week.name }}</h3>
         <p class="text-sm text-gray-500 mb-3">
-          {{ formatDate(week.properties.weekDate) }}
+          {{
+            week.properties.date
+              ? formatDate(new Date(week.properties.date))
+              : 'No date set'
+          }}
         </p>
 
         <ul class="space-y-3">
           <li
-            v-for="(match, index) in week.properties.matches?.items || []"
-            :key="index"
+            v-for="match in week.properties.matches?.items || []"
+            :key="match.id"
             class="grid grid-cols-[1fr_auto_1fr] items-center text-sm text-gray-700 gap-2"
           >
-            <!-- Home Team -->
             <div class="flex items-center gap-2 justify-start">
               <img
                 v-if="
-                  teamLookup[match.content.properties.homeTeam?.[0]?.id]
+                  teamLookup[match.content?.properties?.homeTeam?.[0]?.id]
                     ?.properties?.logo?.[0]?.url
                 "
                 :src="`http://localhost:64203${
@@ -124,7 +154,6 @@ const sortedTeams = computed(() => {
                     .logo[0].url
                 }`"
                 class="w-5 h-5 object-contain"
-                alt="Home Logo"
               />
               <NuxtLink
                 :to="`/teams/${match.content.properties.homeTeam[0].name
@@ -136,13 +165,40 @@ const sortedTeams = computed(() => {
               </NuxtLink>
             </div>
 
-            <!-- Score (centered by grid) -->
             <div class="text-center font-semibold">
-              {{ match.content.properties.homeScore }} -
-              {{ match.content.properties.awayScore }}
+              {{
+                (() => {
+                  const games = match.content?.properties?.games?.items || [];
+                  let homeWins = 0;
+                  let awayWins = 0;
+                  for (const game of games) {
+                    const scores =
+                      game.content?.properties?.playerScores?.items || [];
+                    let h = 0,
+                      a = 0;
+                    for (const score of scores) {
+                      const s = score.content?.properties;
+                      const playerId = s?.player?.[0]?.id;
+                      const fullPlayer = allPlayers.find(
+                        (p) => p.id === playerId
+                      );
+                      const teamId = fullPlayer?.properties?.team?.[0]?.id;
+                      const pts = s?.score || 0;
+                      if (teamId === match.content.properties.homeTeam?.[0]?.id)
+                        h += pts;
+                      else if (
+                        teamId === match.content.properties.awayTeam?.[0]?.id
+                      )
+                        a += pts;
+                    }
+                    if (h > a) homeWins++;
+                    else if (a > h) awayWins++;
+                  }
+                  return `${homeWins} - ${awayWins}`;
+                })()
+              }}
             </div>
 
-            <!-- Away Team -->
             <div class="flex items-center gap-2 justify-end">
               <NuxtLink
                 :to="`/teams/${match.content.properties.awayTeam[0].name
@@ -154,7 +210,7 @@ const sortedTeams = computed(() => {
               </NuxtLink>
               <img
                 v-if="
-                  teamLookup[match.content.properties.awayTeam?.[0]?.id]
+                  teamLookup[match.content?.properties?.awayTeam?.[0]?.id]
                     ?.properties?.logo?.[0]?.url
                 "
                 :src="`http://localhost:64203${
@@ -162,7 +218,6 @@ const sortedTeams = computed(() => {
                     .logo[0].url
                 }`"
                 class="w-5 h-5 object-contain"
-                alt="Away Logo"
               />
             </div>
           </li>
@@ -170,7 +225,6 @@ const sortedTeams = computed(() => {
       </div>
     </div>
 
-    <!-- Standings -->
     <section class="page-section mt-16">
       <h2 class="section-title text-center mb-6">Standings</h2>
       <div class="overflow-x-auto">
