@@ -206,12 +206,17 @@ const sortedTeams = computed(() => {
         :to="`/teams/${team.name.toLowerCase().replace(/ /g, '-')}`"
         class="bg-white rounded-2xl shadow p-4 text-center hover:shadow-md transition block"
       >
-        <img
-          v-if="team.properties.logo"
-          :src="`http://localhost:64203${team.properties.logo[0]?.url}`"
-          alt="Team Logo"
-          class="w-20 h-20 object-contain mx-auto mb-3"
-        />
+        <div
+          class="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-3 rounded-full border-2 border-gray-200 shadow overflow-hidden"
+        >
+          <img
+            v-if="team.properties.logo"
+            :src="`http://localhost:64203${team.properties.logo[0]?.url}`"
+            alt="Team Logo"
+            class="w-full h-full object-cover"
+          />
+        </div>
+
         <p class="font-semibold text-gray-800 hover:text-black transition">
           {{ team.name }}
         </p>
