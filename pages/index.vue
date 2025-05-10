@@ -102,6 +102,9 @@ const sortedTeams = computed(() => {
       </div>
     </div>
   </section>
+  <section class="text-center mt-6">
+    <NuxtLink to="/posts" class="btn-primary"> View All Posts → </NuxtLink>
+  </section>
 
   <section>
     <h2 class="section-title">Current Standings</h2>
@@ -147,7 +150,11 @@ const sortedTeams = computed(() => {
       </table>
     </div>
   </section>
-
+  <section class="page-section text-center mt-6">
+    <NuxtLink to="/standings" class="btn-primary">
+      View Full Standings & Schedule →
+    </NuxtLink>
+  </section>
   <section class="page-section">
     <h2 class="section-title">Teams</h2>
     <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -177,6 +184,10 @@ const sortedTeams = computed(() => {
       </div>
     </div>
   </section>
+  <section class="page-section text-center mt-6">
+    <NuxtLink to="/teams" class="btn-primary"> View All Teams → </NuxtLink>
+  </section>
+
   <section v-if="featuredPlayers.length" class="page-section">
     <h2 class="section-title">Featured Players</h2>
     <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -202,11 +213,5 @@ const sortedTeams = computed(() => {
 
   <section class="page-section text-center">
     <NuxtLink to="/players" class="btn-primary"> View All Players → </NuxtLink>
-  </section>
-
-  <section class="page-section text-center">
-    <NuxtLink to="/standings" class="btn-primary">
-      View Full Standings & Schedule →
-    </NuxtLink>
   </section>
 </template>
