@@ -219,7 +219,7 @@ const sortedTeams = computed(() => {
   </section>
 
   <!-- Featured Players -->
-  <section v-if="featuredPlayers.length" class="page-section">
+  <section v-if="featuredPlayers.length" class="page-section mt-6">
     <h2 class="section-title">Featured Players</h2>
     <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
       <NuxtLink
