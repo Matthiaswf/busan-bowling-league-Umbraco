@@ -4,34 +4,46 @@
 
 @layer components {
   .site-header {
-    @apply bg-blue-700 text-white p-4;
+    @apply bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white px-6 py-4 shadow-md;
   }
 
   .site-footer {
-    @apply bg-gray-800 text-gray-200 p-4 text-center;
+    @apply bg-gray-900 text-gray-400 px-6 py-4 text-center text-sm;
   }
 
   .page-container {
-    @apply container mx-auto px-4 py-6;
+    @apply max-w-5xl mx-auto px-4 py-8;
   }
 
   .page-section {
-    @apply mb-12;
+    @apply mb-16;
   }
 
   .section-title {
-    @apply text-2xl font-bold mb-4;
+    @apply text-3xl font-bold text-gray-900 mb-6;
   }
 
   .post-title {
-    @apply text-3xl font-bold mb-4;
+    @apply text-2xl font-semibold mb-2 text-gray-800;
   }
 
   .post-body {
-    @apply text-gray-600;
+    @apply text-gray-600 leading-relaxed;
   }
 
   .btn-primary {
-    @apply inline-block px-6 py-2 bg-blue-700 text-white rounded hover:bg-blue-800 transition;
+    @apply inline-block px-6 py-2 bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white rounded-full hover:from-orange-600 hover:via-pink-600 hover:to-purple-700 transition-all shadow;
+  }
+
+  .nav-link {
+    @apply text-white text-sm font-medium px-4 py-2 hover:underline;
+  }
+
+  .nav-container {
+    @apply flex justify-between items-center mb-4;
+  }
+
+  .nav-links-bar {
+    @apply flex justify-center gap-6 text-sm -mt-4 mb-8 text-white;
   }
 }

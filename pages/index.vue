@@ -83,43 +83,41 @@ const sortedTeams = computed(() => {
 </script>
 
 <template>
+  <!-- Latest Posts -->
   <section class="page-section">
     <h2 class="section-title mb-4">Latest Posts</h2>
-
-    <div class="space-y-6">
-      <div
+    <div class="space-y-6 max-w-2xl mx-auto">
+      <NuxtLink
         v-for="post in posts"
         :key="post.id"
-        class="bg-white rounded shadow p-6"
+        :to="`/posts/${post.name.toLowerCase().replace(/\s+/g, '-')}`"
+        class="block bg-white rounded-2xl shadow hover:shadow-lg transition p-6 space-y-2"
       >
-        <NuxtLink
-          :to="`/posts/${post.name.toLowerCase().replace(/\s+/g, '-')}`"
-          class="text-xl font-bold text-blue-700 hover:underline block mb-2"
-        >
-          {{ post.name }}
-        </NuxtLink>
-        <p class="text-gray-600 text-sm mb-4">
+        <h2 class="text-xl font-semibold text-gray-800">{{ post.name }}</h2>
+        <p class="text-gray-400 text-sm">
           {{ formatDate(post.properties.publishedDate) }}
         </p>
         <div
-          v-html="post.properties.content?.markup"
-          class="prose max-w-none"
-        ></div>
-      </div>
+          v-if="post.properties.content?.markup"
+          v-html="post.properties.content.markup"
+          class="text-gray-600 text-sm line-clamp-3"
+        />
+      </NuxtLink>
     </div>
   </section>
 
-  <section>
+  <!-- Standings Preview -->
+  <section class="page-section mt-12">
     <h2 class="section-title">Current Standings</h2>
-    <div class="overflow-x-auto">
-      <table class="min-w-full text-sm border">
-        <thead class="bg-gray-100 text-left">
+    <div class="overflow-x-auto rounded-lg shadow">
+      <table class="min-w-full text-sm text-left">
+        <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
           <tr>
-            <th class="p-2 border-b">Team</th>
-            <th class="p-2 border-b text-center">GP</th>
-            <th class="p-2 border-b text-center">W</th>
-            <th class="p-2 border-b text-center">L</th>
-            <th class="p-2 border-b text-center">Pts</th>
+            <th class="p-3">Team</th>
+            <th class="p-3 text-center">GP</th>
+            <th class="p-3 text-center">W</th>
+            <th class="p-3 text-center">L</th>
+            <th class="p-3 text-center">Pts</th>
           </tr>
         </thead>
         <tbody>
@@ -128,7 +126,7 @@ const sortedTeams = computed(() => {
             :key="team.id"
             class="border-t hover:bg-gray-50"
           >
-            <td class="p-2 border">
+            <td class="p-3">
               <NuxtLink
                 :to="`/teams/${team.name.toLowerCase().replace(/\s+/g, '-')}`"
                 class="text-blue-700 hover:underline"
@@ -136,16 +134,16 @@ const sortedTeams = computed(() => {
                 {{ team.name }}
               </NuxtLink>
             </td>
-            <td class="p-2 border text-center">
+            <td class="p-3 text-center">
               {{ computedStats[team.id]?.gp || 0 }}
             </td>
-            <td class="p-2 border text-center">
+            <td class="p-3 text-center">
               {{ computedStats[team.id]?.w || 0 }}
             </td>
-            <td class="p-2 border text-center">
+            <td class="p-3 text-center">
               {{ computedStats[team.id]?.l || 0 }}
             </td>
-            <td class="p-2 border text-center font-semibold">
+            <td class="p-3 text-center font-semibold">
               {{ computedStats[team.id]?.pts || 0 }}
             </td>
           </tr>
@@ -153,52 +151,55 @@ const sortedTeams = computed(() => {
       </table>
     </div>
   </section>
-  <section class="page-section text-center mt-6">
+
+  <section class="text-center mt-6">
     <NuxtLink to="/standings" class="btn-primary">
       View Full Standings & Schedule →
     </NuxtLink>
   </section>
+
+  <!-- Teams Preview -->
   <section class="page-section">
     <h2 class="section-title">Teams</h2>
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
       <div
         v-for="team in teams"
         :key="team.id"
-        class="bg-white rounded shadow p-4 text-center"
+        class="bg-white rounded-2xl shadow p-4 text-center hover:shadow-md transition"
       >
         <img
           v-if="team.properties.logo"
           :src="`http://localhost:64203${team.properties.logo[0]?.url}`"
           alt="Team Logo"
-          class="w-20 h-20 object-contain mx-auto mb-2"
+          class="w-20 h-20 object-contain mx-auto mb-3"
         />
-
         <NuxtLink
           :to="`/teams/${team.name.toLowerCase().replace(/ /g, '-')}`"
-          class="text-lg font-bold mb-1 text-blue-700 hover:underline block"
+          class="text-lg font-semibold text-blue-700 hover:underline block"
         >
           {{ team.name }}
         </NuxtLink>
-
         <p
-          class="text-gray-500 text-sm"
+          class="text-gray-500 text-sm mt-1"
           v-html="team.properties.bio?.markup"
         ></p>
       </div>
     </div>
   </section>
-  <section class="page-section text-center mt-6">
+
+  <section class="text-center mt-6">
     <NuxtLink to="/teams" class="btn-primary"> View All Teams → </NuxtLink>
   </section>
 
+  <!-- Featured Players -->
   <section v-if="featuredPlayers.length" class="page-section">
     <h2 class="section-title">Featured Players</h2>
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
       <NuxtLink
         v-for="player in featuredPlayers"
         :key="player.id"
         :to="`/players/${player.name.toLowerCase().replace(/\s+/g, '-')}`"
-        class="bg-white p-4 rounded shadow text-center hover:bg-gray-50 transition"
+        class="bg-white p-4 rounded-2xl shadow text-center hover:shadow-md transition"
       >
         <img
           v-if="player.properties.avatar?.[0]?.url"
@@ -206,7 +207,7 @@ const sortedTeams = computed(() => {
           alt="Avatar"
           class="w-16 h-16 object-cover rounded-full mx-auto mb-2"
         />
-        <p class="font-bold">{{ player.name }}</p>
+        <p class="font-semibold">{{ player.name }}</p>
         <p class="text-sm text-gray-500">
           {{ player.properties.position?.[0]?.name || 'No position' }}
         </p>
@@ -214,7 +215,7 @@ const sortedTeams = computed(() => {
     </div>
   </section>
 
-  <section class="page-section text-center">
+  <section class="text-center mt-6">
     <NuxtLink to="/players" class="btn-primary"> View All Players → </NuxtLink>
   </section>
 </template>
