@@ -41,7 +41,7 @@ onMounted(async () => {
       class="w-24 h-24 object-contain mb-4"
     />
     <h1 class="post-title">{{ team.name }}</h1>
-    <p class="post-body">{{ team.properties.bio }}</p>
+    <p class="text-gray-500 text-sm" v-html="team.properties.bio?.markup"></p>
     <div class="mt-6 grid grid-cols-2 gap-4 text-sm text-center">
       <div class="bg-gray-100 rounded p-4">
         <div class="font-bold text-lg">{{ team.properties.gamesPlayed }}</div>
