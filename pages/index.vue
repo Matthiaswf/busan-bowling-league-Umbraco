@@ -4,6 +4,7 @@ const { get } = useApi();
 
 const posts = ref([]);
 const teams = ref([]);
+const allPlayers = ref([]);
 const teamLookup = ref({});
 const featuredPlayers = ref([]);
 const weeks = ref([]); // <-- This was missing
@@ -18,13 +19,13 @@ onMounted(async () => {
 
   const playersFolder = items.find((i) => i.contentType === 'playersFolder');
   if (playersFolder) {
-    featuredPlayers.value = items
-      .filter(
-        (i) =>
-          i.contentType === 'player' &&
-          i.route?.startItem?.id === playersFolder.id
-      )
-      .slice(0, 3);
+    allPlayers.value = items.filter(
+      (i) =>
+        i.contentType === 'player' &&
+        i.route?.startItem?.id === playersFolder.id
+    );
+
+    featuredPlayers.value = allPlayers.value.slice(0, 3);
   }
 
   const season = items.find((i) => i.contentType === 'season');
@@ -43,26 +44,52 @@ const computedStats = computed(() => {
     const matches = week.properties.matches?.items || [];
 
     for (const match of matches) {
-      const game = match.content?.properties;
-      if (!game) continue;
+      const matchProps = match.content?.properties;
+      const home = matchProps?.homeTeam?.[0]?.id;
+      const away = matchProps?.awayTeam?.[0]?.id;
+      const games = matchProps?.games?.items || [];
 
-      const home = game.homeTeam?.[0]?.id;
-      const away = game.awayTeam?.[0]?.id;
-      const homeScore = game.homeScore;
-      const awayScore = game.awayScore;
-      if (!home || !away) continue;
+      if (!home || !away || games.length === 0) continue;
 
       if (!statsMap[home]) statsMap[home] = { gp: 0, w: 0, l: 0, pts: 0 };
       if (!statsMap[away]) statsMap[away] = { gp: 0, w: 0, l: 0, pts: 0 };
 
-      statsMap[home].gp += 1;
-      statsMap[away].gp += 1;
+      statsMap[home].gp += games.length;
+      statsMap[away].gp += games.length;
 
-      if (homeScore > awayScore) {
+      let homeWins = 0;
+      let awayWins = 0;
+
+      for (const game of games) {
+        const scores = game.content?.properties?.playerScores?.items || [];
+        let homeTotal = 0;
+        let awayTotal = 0;
+
+        for (const score of scores) {
+          const s = score.content?.properties;
+          const points = s?.score || 0;
+          const playerId = s?.player?.[0]?.id;
+          const fullPlayer = allPlayers.value.find(
+            (p) => p.id === playerId && p.contentType === 'player'
+          );
+          const playerTeam = fullPlayer?.properties?.team?.[0]?.id;
+
+          if (!playerTeam) continue;
+
+          if (playerTeam === home) homeTotal += points;
+          else if (playerTeam === away) awayTotal += points;
+        }
+
+        if (homeTotal > awayTotal) homeWins++;
+        else if (awayTotal > homeTotal) awayWins++;
+      }
+
+      // Determine match winner
+      if (homeWins > awayWins) {
         statsMap[home].w += 1;
         statsMap[home].pts += 1;
         statsMap[away].l += 1;
-      } else if (awayScore > homeScore) {
+      } else if (awayWins > homeWins) {
         statsMap[away].w += 1;
         statsMap[away].pts += 1;
         statsMap[home].l += 1;
