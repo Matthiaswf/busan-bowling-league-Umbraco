@@ -93,6 +93,51 @@ const computedStats = computed(() => {
   return statsMap;
 });
 
+const playerStats = computed(() => {
+  const stats = [];
+
+  for (const player of allPlayers.value) {
+    let games = 0;
+    let totalPoints = 0;
+
+    for (const week of weeks.value) {
+      const matches = week.properties.matches?.items || [];
+
+      for (const match of matches) {
+        const gamesList = match.content?.properties?.games?.items || [];
+
+        for (const g of gamesList) {
+          const scores = g.content?.properties?.playerScores?.items || [];
+
+          for (const s of scores) {
+            const props = s.content?.properties;
+            if (props?.player?.[0]?.id === player.id) {
+              totalPoints += props.score || 0;
+              games++;
+            }
+          }
+        }
+      }
+    }
+
+    stats.push({
+      ...player,
+      stats: {
+        gamesPlayed: games,
+        averageScore: games ? (totalPoints / games).toFixed(1) : '0.0',
+      },
+    });
+  }
+
+  return stats;
+});
+
+const sortedPlayers = computed(() => {
+  return [...playerStats.value]
+    .filter((p) => p.stats.gamesPlayed > 0)
+    .sort((a, b) => b.stats.averageScore - a.stats.averageScore);
+});
+
 const sortedTeams = computed(() => {
   return Object.values(teamLookup.value).sort((a, b) => {
     const aStats = computedStats.value[a.id] || { pts: 0 };
@@ -224,7 +269,7 @@ const sortedTeams = computed(() => {
     </div>
 
     <section class="page-section mt-16">
-      <h2 class="section-title text-center mb-6">Standings</h2>
+      <h2 class="section-title text-center mb-6">Team Standings</h2>
       <div class="overflow-x-auto">
         <table
           class="min-w-full text-sm border rounded overflow-hidden shadow-sm"
@@ -232,10 +277,10 @@ const sortedTeams = computed(() => {
           <thead class="bg-gray-100 text-gray-700 uppercase text-xs">
             <tr>
               <th class="p-3 border">Team</th>
-              <th class="p-3 border text-center">GP</th>
-              <th class="p-3 border text-center">W</th>
-              <th class="p-3 border text-center">L</th>
-              <th class="p-3 border text-center">Pts</th>
+              <th class="p-3 border text-center">Games Played</th>
+              <th class="p-3 border text-center">Wins</th>
+              <th class="p-3 border text-center">Losses</th>
+              <th class="p-3 border text-center">Points</th>
             </tr>
           </thead>
           <tbody>
@@ -263,6 +308,46 @@ const sortedTeams = computed(() => {
               </td>
               <td class="p-3 border text-center">
                 {{ computedStats[team.id]?.pts || 0 }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <section class="page-section mt-16">
+      <h2 class="section-title text-center mb-6">Individual Standings</h2>
+      <div class="overflow-x-auto">
+        <table
+          class="min-w-full text-sm border rounded overflow-hidden shadow-sm"
+        >
+          <thead class="bg-gray-100 text-gray-700 uppercase text-xs">
+            <tr>
+              <th class="p-3 border">Player</th>
+              <th class="p-3 border text-center">Avg</th>
+              <th class="p-3 border text-center">Games Played</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="player in sortedPlayers"
+              :key="player.id"
+              class="border-t hover:bg-gray-50"
+            >
+              <td class="p-3 border font-medium">
+                <NuxtLink
+                  :to="`/players/${player.name
+                    .toLowerCase()
+                    .replace(/\s+/g, '-')}`"
+                  class="nav-link"
+                >
+                  {{ player.name }}
+                </NuxtLink>
+              </td>
+              <td class="p-3 border text-center">
+                {{ player.stats.averageScore }}
+              </td>
+              <td class="p-3 border text-center">
+                {{ player.stats.gamesPlayed }}
               </td>
             </tr>
           </tbody>
