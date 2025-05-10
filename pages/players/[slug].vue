@@ -1,74 +1,128 @@
 <script setup>
 import { useRoute } from 'vue-router';
 const route = useRoute();
-
 const { get } = useApi();
+
 const player = ref(null);
 const allWeeks = ref([]);
+const allPlayers = ref([]);
 
 onMounted(async () => {
   const data = await get('/umbraco/delivery/api/v1/content?take=100');
   const items = data?.items || [];
 
-  // Find this player
   player.value = items.find(
     (p) =>
       p.contentType === 'player' &&
-      p.name.toLowerCase().replace(/ /g, '-') ===
+      p.name.toLowerCase().replace(/\s+/g, '-') ===
         route.params.slug.toLowerCase()
   );
 
-  // Load all weeks
   allWeeks.value = items.filter((i) => i.contentType === 'week');
+
+  const playersFolder = items.find((i) => i.contentType === 'playersFolder');
+  if (playersFolder) {
+    allPlayers.value = items.filter(
+      (p) =>
+        p.contentType === 'player' &&
+        p.route?.startItem?.id === playersFolder.id
+    );
+  }
 });
 
-const playerGames = computed(() => {
+const recentMatches = computed(() => {
   if (!player.value) return [];
 
-  return allWeeks.value.flatMap((week) =>
-    (week.properties.matches?.items || []).filter((match) => {
-      const game = match.content?.properties;
-      if (!game) return false;
-      const homeId = game.homeTeam?.[0]?.id;
-      const awayId = game.awayTeam?.[0]?.id;
-      return (
-        homeId === player.value.properties.team?.[0]?.id ||
-        awayId === player.value.properties.team?.[0]?.id
+  const teamId = player.value.properties.team?.[0]?.id;
+  if (!teamId) return [];
+
+  const matches = [];
+
+  for (const week of allWeeks.value) {
+    const matchItems = week.properties.matches?.items || [];
+
+    for (const match of matchItems) {
+      const props = match.content?.properties;
+      const games = props?.games?.items || [];
+      const home = props?.homeTeam?.[0];
+      const away = props?.awayTeam?.[0];
+
+      if (!home || !away || !games.length) continue;
+
+      // Only push matches where player participated
+      const participated = games.some((game) =>
+        (game.content?.properties?.playerScores?.items || []).some(
+          (score) =>
+            score.content?.properties?.player?.[0]?.id === player.value.id
+        )
       );
-    })
-  );
+
+      if (!participated) continue;
+
+      let homeWins = 0;
+      let awayWins = 0;
+
+      for (const game of games) {
+        let homeTotal = 0;
+        let awayTotal = 0;
+        const scores = game.content?.properties?.playerScores?.items || [];
+
+        for (const s of scores) {
+          const props = s.content?.properties;
+          const score = props?.score || 0;
+          const playerId = props?.player?.[0]?.id;
+          const fullPlayer = allPlayers.value.find((p) => p.id === playerId);
+          const playerTeam = fullPlayer?.properties?.team?.[0]?.id;
+
+          if (playerTeam === home.id) homeTotal += score;
+          else if (playerTeam === away.id) awayTotal += score;
+        }
+
+        if (homeTotal > awayTotal) homeWins++;
+        else if (awayTotal > homeTotal) awayWins++;
+      }
+
+      matches.push({
+        home,
+        away,
+        homeWins,
+        awayWins,
+      });
+    }
+  }
+
+  return matches.slice(0, 3);
 });
 
 const playerStats = computed(() => {
   let games = 0;
-  let points = 0;
+  let totalPoints = 0;
 
-  for (const match of playerGames.value) {
-    const game = match.content?.properties;
-    if (!game) continue;
+  for (const match of allWeeks.value) {
+    const matchItems = match.properties.matches?.items || [];
 
-    const teamId = player.value?.properties.team?.[0]?.id;
-    if (!teamId) continue;
+    for (const m of matchItems) {
+      const gamesList = m.content?.properties?.games?.items || [];
 
-    const isHome = game.homeTeam?.[0]?.id === teamId;
-    const isAway = game.awayTeam?.[0]?.id === teamId;
+      for (const g of gamesList) {
+        const scores = g.content?.properties?.playerScores?.items || [];
 
-    if (isHome || isAway) {
-      games += 1;
-      points += isHome ? game.homeScore : game.awayScore;
+        for (const s of scores) {
+          const props = s.content?.properties;
+          if (props?.player?.[0]?.id === player.value?.id) {
+            totalPoints += props.score || 0;
+            games++;
+          }
+        }
+      }
     }
   }
 
-  const average = games > 0 ? (points / games).toFixed(1) : '0';
-
   return {
     gamesPlayed: games,
-    totalPoints: points,
-    averageScore: average,
+    totalPoints,
+    averageScore: games ? (totalPoints / games).toFixed(1) : '0',
   };
-});
-const recentGames = computed(() => {
-  return playerGames.value.slice(0, 3); // latest 3 games
 });
 </script>
 
@@ -109,24 +163,23 @@ const recentGames = computed(() => {
       </div>
     </div>
 
-    <section v-if="recentGames.length" class="mt-10">
+    <section v-if="recentMatches.length" class="mt-10">
       <h2 class="text-xl font-semibold text-gray-800 mb-4">Recent Matches</h2>
       <ul class="space-y-2 text-sm">
         <li
-          v-for="(match, index) in recentGames"
+          v-for="(match, index) in recentMatches"
           :key="index"
           class="bg-gray-50 rounded p-3 flex justify-center items-center text-center shadow-sm"
         >
           <div class="grid grid-cols-3 w-full text-center">
-            <span class="text-gray-700 font-medium">
-              {{ match.content.properties.homeTeam?.[0]?.name || '—' }}
+            <span class="text-gray-700 font-medium truncate">
+              {{ match.home.name }}
             </span>
-            <span class="text-gray-900 font-semibold">
-              {{ match.content.properties.homeScore }} -
-              {{ match.content.properties.awayScore }}
+            <span class="text-center font-semibold">
+              {{ match.homeWins }} - {{ match.awayWins }}
             </span>
-            <span class="text-gray-700 font-medium">
-              {{ match.content.properties.awayTeam?.[0]?.name || '—' }}
+            <span class="text-gray-700 font-medium truncate">
+              {{ match.away.name }}
             </span>
           </div>
         </li>
