@@ -115,14 +115,20 @@ const recentGames = computed(() => {
         <li
           v-for="(match, index) in recentGames"
           :key="index"
-          class="bg-gray-50 rounded p-3 flex justify-between items-center shadow-sm"
+          class="bg-gray-50 rounded p-3 flex justify-center items-center text-center shadow-sm"
         >
-          <span class="text-gray-700">
-            {{ match.content.properties.homeTeam?.[0]?.name || '—' }}
-            {{ match.content.properties.homeScore }} -
-            {{ match.content.properties.awayScore }}
-            {{ match.content.properties.awayTeam?.[0]?.name || '—' }}
-          </span>
+          <div class="grid grid-cols-3 w-full text-center">
+            <span class="text-gray-700 font-medium">
+              {{ match.content.properties.homeTeam?.[0]?.name || '—' }}
+            </span>
+            <span class="text-gray-900 font-semibold">
+              {{ match.content.properties.homeScore }} -
+              {{ match.content.properties.awayScore }}
+            </span>
+            <span class="text-gray-700 font-medium">
+              {{ match.content.properties.awayTeam?.[0]?.name || '—' }}
+            </span>
+          </div>
         </li>
       </ul>
     </section>
