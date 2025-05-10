@@ -129,7 +129,7 @@ const sortedTeams = computed(() => {
             <td class="p-3">
               <NuxtLink
                 :to="`/teams/${team.name.toLowerCase().replace(/\s+/g, '-')}`"
-                class="text-blue-700 hover:underline"
+                class="font-semibold text-gray-800 hover:text-black transition"
               >
                 {{ team.name }}
               </NuxtLink>
@@ -175,7 +175,7 @@ const sortedTeams = computed(() => {
         />
         <NuxtLink
           :to="`/teams/${team.name.toLowerCase().replace(/ /g, '-')}`"
-          class="text-lg font-semibold text-blue-700 hover:underline block"
+          class="font-semibold text-gray-800 hover:text-black transition"
         >
           {{ team.name }}
         </NuxtLink>
