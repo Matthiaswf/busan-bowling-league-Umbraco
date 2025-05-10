@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex flex-col min-h-screen">
     <header class="site-header bg-white shadow">
       <div class="nav-container">
         <NuxtLink to="/" class="flex items-center gap-3">
@@ -12,12 +12,14 @@
         </NuxtLink>
       </div>
     </header>
+
     <div class="nav-links-bar mt-3">
       <NuxtLink to="/standings" class="nav-link">Standings</NuxtLink>
       <NuxtLink to="/teams" class="nav-link">Teams</NuxtLink>
       <NuxtLink to="/players" class="nav-link">Players</NuxtLink>
     </div>
-    <main class="page-container">
+
+    <main class="page-container flex-1">
       <slot />
     </main>
 

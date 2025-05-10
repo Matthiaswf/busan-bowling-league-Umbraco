@@ -74,47 +74,50 @@ const recentGames = computed(() => {
 
 <template>
   <section class="page-section" v-if="player">
-    <img
-      v-if="player.properties.avatar?.[0]?.url"
-      :src="`http://localhost:64203${player.properties.avatar[0].url}`"
-      alt="Avatar"
-      class="w-24 h-24 object-cover rounded-full mb-4"
-    />
-    <h1 class="text-2xl font-bold mb-2">{{ player.name }}</h1>
-    <p class="text-sm text-gray-500">
-      {{ player.properties.position?.[0]?.name || 'No position' }}
-    </p>
+    <div class="text-center">
+      <img
+        v-if="player.properties.avatar?.[0]?.url"
+        :src="`http://localhost:64203${player.properties.avatar[0].url}`"
+        alt="Avatar"
+        class="w-24 h-24 object-cover rounded-full mx-auto mb-4"
+      />
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ player.name }}</h1>
+      <p class="text-sm text-gray-500 mb-1">
+        {{ player.properties.position?.[0]?.name || 'No position' }}
+      </p>
+    </div>
 
     <div
       v-if="player.properties.bio"
       v-html="player.properties.bio.markup"
-      class="prose"
+      class="prose mx-auto my-6"
     ></div>
 
     <!-- Stats Section -->
-    <div class="mt-6 grid grid-cols-3 gap-4 text-sm text-center">
-      <div class="bg-blue-50 rounded p-4">
+    <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-center">
+      <div class="bg-blue-50 rounded p-4 shadow">
         <div class="font-bold text-lg">{{ playerStats.gamesPlayed }}</div>
         <div class="text-gray-600">Games Played</div>
       </div>
-      <div class="bg-blue-50 rounded p-4">
+      <div class="bg-blue-50 rounded p-4 shadow">
         <div class="font-bold text-lg">{{ playerStats.averageScore }}</div>
         <div class="text-gray-600">Avg. Points</div>
       </div>
-      <div class="bg-blue-50 rounded p-4">
+      <div class="bg-blue-50 rounded p-4 shadow">
         <div class="font-bold text-lg">{{ playerStats.totalPoints }}</div>
         <div class="text-gray-600">Total Points</div>
       </div>
     </div>
-    <section v-if="recentGames.length" class="mt-8">
-      <h2 class="text-xl font-semibold mb-4">Recent Matches</h2>
+
+    <section v-if="recentGames.length" class="mt-10">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Recent Matches</h2>
       <ul class="space-y-2 text-sm">
         <li
           v-for="(match, index) in recentGames"
           :key="index"
-          class="bg-gray-50 rounded p-3 flex justify-between items-center"
+          class="bg-gray-50 rounded p-3 flex justify-between items-center shadow-sm"
         >
-          <span>
+          <span class="text-gray-700">
             {{ match.content.properties.homeTeam?.[0]?.name || '—' }}
             {{ match.content.properties.homeScore }} -
             {{ match.content.properties.awayScore }}

@@ -25,25 +25,25 @@ onMounted(async () => {
 
 <template>
   <section class="page-section">
-    <h1 class="section-title">Players</h1>
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+    <h1 class="section-title text-center">Players</h1>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
       <NuxtLink
         v-for="player in players"
         :key="player.id"
         :to="`/players/${player.name.toLowerCase().replace(/\s+/g, '-')}`"
-        class="bg-white rounded p-4 text-center shadow hover:shadow-md transition"
+        class="bg-white rounded p-4 text-center shadow hover:shadow-md transition duration-200"
       >
         <img
           v-if="player.properties.avatar?.[0]?.url"
           :src="`http://localhost:64203${player.properties.avatar[0].url}`"
           alt="Avatar"
-          class="w-20 h-20 rounded-full object-cover mx-auto mb-2"
+          class="w-20 h-20 rounded-full object-cover mx-auto mb-3"
         />
-        <p class="font-bold">{{ player.name }}</p>
+        <p class="text-lg font-bold text-gray-900">{{ player.name }}</p>
         <p class="text-sm text-gray-500">
           {{ player.properties.position?.[0]?.name || 'No position' }}
         </p>
-        <p class="text-sm text-gray-400 italic">
+        <p class="text-xs text-gray-400 italic mt-1">
           {{
             teamLookup[player.properties.team?.[0]?.id]?.name ||
             'No team assigned'

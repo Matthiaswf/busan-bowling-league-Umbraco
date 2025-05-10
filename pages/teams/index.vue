@@ -49,29 +49,29 @@ const computedStats = computed(() => {
   return statsMap;
 });
 </script>
-
 <template>
   <section class="page-section">
-    <h1 class="section-title">Teams</h1>
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+    <h1 class="section-title text-center">Teams</h1>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
       <div
         v-for="team in teams"
         :key="team.id"
-        class="bg-white rounded shadow p-4 text-center"
+        class="bg-white rounded shadow p-4 text-center hover:shadow-md transition duration-200"
       >
         <img
           v-if="team.properties.logo?.[0]?.url"
           :src="`http://localhost:64203${team.properties.logo[0].url}`"
           alt="Team Logo"
-          class="w-20 h-20 object-contain mx-auto mb-2"
+          class="w-20 h-20 object-contain mx-auto mb-3"
         />
         <NuxtLink
           :to="`/teams/${team.name.toLowerCase().replace(/\s+/g, '-')}`"
-          class="font-bold text-lg text-blue-700 hover:underline block"
+          class="text-lg font-bold text-gray-900 nav-link block"
         >
           {{ team.name }}
         </NuxtLink>
-        <p class="text-sm text-gray-500">
+
+        <p class="text-sm text-gray-500 mt-1">
           {{ computedStats[team.id]?.w || 0 }} W •
           {{ computedStats[team.id]?.l || 0 }} L •
           {{ computedStats[team.id]?.pts || 0 }} Pts
