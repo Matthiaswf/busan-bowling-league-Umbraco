@@ -67,6 +67,9 @@ const playerStats = computed(() => {
     averageScore: average,
   };
 });
+const recentGames = computed(() => {
+  return playerGames.value.slice(0, 3); // latest 3 games
+});
 </script>
 
 <template>
@@ -101,6 +104,23 @@ const playerStats = computed(() => {
         <div class="text-gray-600">Total Points</div>
       </div>
     </div>
+    <section v-if="recentGames.length" class="mt-8">
+      <h2 class="text-xl font-semibold mb-4">Recent Matches</h2>
+      <ul class="space-y-2 text-sm">
+        <li
+          v-for="(match, index) in recentGames"
+          :key="index"
+          class="bg-gray-50 rounded p-3 flex justify-between items-center"
+        >
+          <span>
+            {{ match.content.properties.homeTeam?.[0]?.name || '—' }}
+            {{ match.content.properties.homeScore }} -
+            {{ match.content.properties.awayScore }}
+            {{ match.content.properties.awayTeam?.[0]?.name || '—' }}
+          </span>
+        </li>
+      </ul>
+    </section>
   </section>
 
   <section v-else class="page-section text-center">
