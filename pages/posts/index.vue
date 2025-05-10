@@ -6,7 +6,15 @@ onMounted(async () => {
   const data = await get('/umbraco/delivery/api/v1/content?take=100');
   const items = data?.items || [];
 
-  posts.value = items.filter((item) => item.contentType === 'post');
+  // Find Posts folder by contentType
+  const postsFolder = items.find((i) => i.contentType === 'postsFolder');
+
+  if (postsFolder) {
+    posts.value = items.filter(
+      (i) =>
+        i.contentType === 'post' && i.route?.startItem?.id === postsFolder.id
+    );
+  }
 });
 </script>
 
