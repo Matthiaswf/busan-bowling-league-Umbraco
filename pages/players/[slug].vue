@@ -166,7 +166,7 @@ const playerStats = computed(() => {
     <div
       v-if="player.properties.bio"
       v-html="player.properties.bio.markup"
-      class="prose prose-sm sm:prose-base mx-auto my-8 max-w-4xl"
+      class="prose prose-sm sm:prose-base mx-auto my-8 max-w-4xl text-center"
     ></div>
 
     <!-- Stats Section -->
