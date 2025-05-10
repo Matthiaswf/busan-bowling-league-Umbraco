@@ -27,10 +27,11 @@ onMounted(async () => {
   <section class="page-section">
     <h1 class="section-title">Players</h1>
     <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-      <div
+      <NuxtLink
         v-for="player in players"
         :key="player.id"
-        class="bg-white rounded p-4 text-center shadow"
+        :to="`/players/${player.name.toLowerCase().replace(/\s+/g, '-')}`"
+        class="bg-white rounded p-4 text-center shadow hover:shadow-md transition"
       >
         <img
           v-if="player.properties.avatar?.[0]?.url"
@@ -48,7 +49,7 @@ onMounted(async () => {
             'No team assigned'
           }}
         </p>
-      </div>
+      </NuxtLink>
     </div>
   </section>
 </template>
