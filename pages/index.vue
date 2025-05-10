@@ -84,26 +84,29 @@ const sortedTeams = computed(() => {
 
 <template>
   <section class="page-section">
-    <h2 class="section-title">Latest Posts</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <h2 class="section-title mb-4">Latest Posts</h2>
+
+    <div class="space-y-6">
       <div
         v-for="post in posts"
         :key="post.id"
-        class="bg-white rounded shadow p-4"
+        class="bg-white rounded shadow p-6"
       >
         <NuxtLink
-          :to="`/posts/${post.name.toLowerCase().replace(/ /g, '-')}`"
-          class="text-lg font-bold mb-2 text-blue-700 hover:underline block"
+          :to="`/posts/${post.name.toLowerCase().replace(/\s+/g, '-')}`"
+          class="text-xl font-bold text-blue-700 hover:underline block mb-2"
         >
           {{ post.name }}
         </NuxtLink>
-
-        <p class="text-gray-600">{{ post.properties.title }}</p>
+        <p class="text-gray-600 text-sm mb-4">
+          {{ formatDate(post.properties.publishedDate) }}
+        </p>
+        <div
+          v-html="post.properties.content?.markup"
+          class="prose max-w-none"
+        ></div>
       </div>
     </div>
-  </section>
-  <section class="text-center mt-6">
-    <NuxtLink to="/posts" class="btn-primary"> View All Posts → </NuxtLink>
   </section>
 
   <section>
