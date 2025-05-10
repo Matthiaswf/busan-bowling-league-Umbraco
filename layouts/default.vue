@@ -1,28 +1,26 @@
 <template>
   <div>
-    <!-- Two-Row Navbar -->
-    <header class="bg-blue-700 text-white shadow">
-      <!-- Top row: logo and title -->
-      <div class="container mx-auto flex justify-between items-center p-4">
-        <NuxtLink to="/" class="text-xl font-bold">🏆 BBL</NuxtLink>
-      </div>
-
-      <!-- Second row: centered nav links -->
-      <div class="bg-blue-800">
-        <nav class="container mx-auto flex justify-center gap-6 py-2 text-sm">
-          <NuxtLink to="/standings" class="hover:underline">Standings</NuxtLink>
-          <NuxtLink to="/teams" class="hover:underline">Teams</NuxtLink>
-          <NuxtLink to="/players" class="hover:underline">Players</NuxtLink>
-        </nav>
+    <header class="site-header bg-white shadow">
+      <div class="nav-container">
+        <NuxtLink to="/" class="flex items-center gap-3">
+          <img src="/assets/navbar/beer.svg" alt="Logo" class="w-8 h-8" />
+          <h1
+            class="text-2xl font-extrabold bg-gradient-logo bg-clip-text text-transparent"
+          >
+            Busan Bowling League
+          </h1>
+        </NuxtLink>
       </div>
     </header>
-
-    <!-- Main content -->
+    <div class="nav-links-bar mt-3">
+      <NuxtLink to="/standings" class="nav-link">Standings</NuxtLink>
+      <NuxtLink to="/teams" class="nav-link">Teams</NuxtLink>
+      <NuxtLink to="/players" class="nav-link">Players</NuxtLink>
+    </div>
     <main class="page-container">
       <slot />
     </main>
 
-    <!-- Footer -->
     <footer class="site-footer">
       © {{ new Date().getFullYear() }} Busan Bowling League
     </footer>
