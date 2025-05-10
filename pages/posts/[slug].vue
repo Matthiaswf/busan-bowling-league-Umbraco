@@ -28,9 +28,21 @@ onMounted(async () => {
 <template>
   <section v-if="post" class="page-section">
     <div class="max-w-3xl mx-auto">
-      <h1 class="post-title text-center">{{ post.name }}</h1>
+      <!-- Hero image -->
+      <img
+        v-if="post.properties.mainImage?.[0]?.url"
+        :src="`http://localhost:64203${post.properties.mainImage[0].url}`"
+        alt="Post Image"
+        class="w-full h-64 object-cover rounded-xl mb-8 shadow"
+      />
 
-      <p v-if="post.createDate" class="text-sm text-gray-500 text-center mb-6">
+      <!-- Title -->
+      <h1 class="text-3xl font-extrabold text-center text-gray-900 mb-2">
+        {{ post.name }}
+      </h1>
+
+      <!-- Date -->
+      <p v-if="post.createDate" class="text-sm text-gray-500 text-center mb-8">
         {{
           new Date(post.createDate).toLocaleDateString('en-US', {
             year: 'numeric',
@@ -40,10 +52,12 @@ onMounted(async () => {
         }}
       </p>
 
+      <!-- Rich content -->
       <div
-        class="prose prose-lg mx-auto"
-        v-html="post.properties.content?.markup"
-      ></div>
+        v-if="post.properties.content?.markup"
+        class="prose prose-lg max-w-none mx-auto"
+        v-html="post.properties.content.markup"
+      />
     </div>
   </section>
 

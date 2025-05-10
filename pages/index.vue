@@ -118,17 +118,28 @@ const sortedTeams = computed(() => {
         v-for="post in posts"
         :key="post.id"
         :to="`/posts/${post.name.toLowerCase().replace(/\s+/g, '-')}`"
-        class="block bg-white rounded-2xl shadow hover:shadow-lg transition p-6 space-y-2"
+        class="block bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden"
       >
-        <h2 class="text-xl font-semibold text-gray-800">{{ post.name }}</h2>
-        <p class="text-gray-400 text-sm">
-          {{ formatDate(post.properties.publishedDate) }}
-        </p>
-        <div
-          v-if="post.properties.content?.markup"
-          v-html="post.properties.content.markup"
-          class="text-gray-600 text-sm line-clamp-3"
+        <!-- Image -->
+        <img
+          v-if="post.properties.mainImage?.[0]?.url"
+          :src="`http://localhost:64203${post.properties.mainImage[0].url}`"
+          alt="Post Image"
+          class="w-full h-48 object-cover"
         />
+
+        <!-- Text content -->
+        <div class="p-6 space-y-2">
+          <h2 class="text-xl font-semibold text-gray-800">{{ post.name }}</h2>
+          <p class="text-gray-400 text-sm">
+            {{ formatDate(post.properties.publishedDate) }}
+          </p>
+          <div
+            v-if="post.properties.content?.markup"
+            v-html="post.properties.content.markup"
+            class="text-gray-600 text-sm line-clamp-3"
+          />
+        </div>
       </NuxtLink>
     </div>
   </section>
