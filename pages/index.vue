@@ -37,6 +37,14 @@ onMounted(async () => {
   }
 });
 
+const postsSorted = computed(() => {
+  return [...posts.value].sort((a, b) => {
+    const aDate = new Date(a.properties.publishedDate);
+    const bDate = new Date(b.properties.publishedDate);
+    return bDate - aDate;
+  });
+});
+
 const computedStats = computed(() => {
   const statsMap = {};
 
@@ -115,7 +123,7 @@ const sortedTeams = computed(() => {
     <h2 class="section-title mb-4">Latest Posts</h2>
     <div class="space-y-6 max-w-2xl mx-auto">
       <NuxtLink
-        v-for="post in posts"
+        v-for="post in postsSorted.slice(0, 3)"
         :key="post.id"
         :to="`/posts/${post.name.toLowerCase().replace(/\s+/g, '-')}`"
         class="block bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden"
@@ -141,6 +149,10 @@ const sortedTeams = computed(() => {
           />
         </div>
       </NuxtLink>
+    </div>
+
+    <div class="text-center mt-6">
+      <NuxtLink to="/posts" class="btn-primary">View All Posts →</NuxtLink>
     </div>
   </section>
 
