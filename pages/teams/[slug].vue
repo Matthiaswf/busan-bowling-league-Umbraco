@@ -104,7 +104,8 @@ const allMatches = computed(() => {
     const matchItems = item.properties.matches?.items || [];
 
     for (const g of matchItems) {
-      const props = g.content?.properties;
+      const matchDoc = g.content;
+      const props = matchDoc?.properties;
       if (!props) continue;
 
       const home = props.homeTeam?.[0];
@@ -139,11 +140,19 @@ const allMatches = computed(() => {
         else if (awayTotal > homeTotal) awayWins++;
       }
 
+      console.log('MATCH DEBUG →', {
+        matchName: g.name,
+        home: home?.name,
+        away: away?.name,
+        included: home.id === team.value.id || away.id === team.value.id,
+      });
+
       matches.push({
         home,
         away,
         homeScore: homeWins,
         awayScore: awayWins,
+        slug: props.slug || '',
       });
     }
   }
@@ -233,25 +242,26 @@ const allMatches = computed(() => {
         Match History
       </h2>
       <ul class="w-full max-w-2xl mx-auto space-y-3">
-        <li
-          v-for="(match, index) in allMatches"
-          :key="index"
-          class="grid grid-cols-[1fr_auto_1fr] items-center bg-gray-100 rounded p-3 text-sm text-gray-700 w-full"
-        >
-          <!-- Home team -->
-          <span class="text-right font-semibold truncate">
-            {{ match.home.name }}
-          </span>
+        <li v-for="(match, index) in allMatches" :key="index">
+          <NuxtLink
+            :to="`/matches/${match.slug}`"
+            class="grid grid-cols-[1fr_auto_1fr] items-center bg-gray-100 rounded p-3 text-sm text-gray-700 w-full hover:bg-gray-200 transition"
+          >
+            <!-- Home team -->
+            <span class="text-right font-semibold truncate">
+              {{ match.home.name }}
+            </span>
 
-          <!-- Score -->
-          <span class="text-center font-semibold w-[80px]">
-            {{ match.homeScore }} - {{ match.awayScore }}
-          </span>
+            <!-- Score -->
+            <span class="text-center font-semibold w-[80px]">
+              {{ match.homeScore }} - {{ match.awayScore }}
+            </span>
 
-          <!-- Away team -->
-          <span class="text-left font-semibold truncate">
-            {{ match.away.name }}
-          </span>
+            <!-- Away team -->
+            <span class="text-left font-semibold truncate">
+              {{ match.away.name }}
+            </span>
+          </NuxtLink>
         </li>
       </ul>
     </section>
