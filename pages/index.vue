@@ -7,7 +7,7 @@ const teams = ref([]);
 const allPlayers = ref([]);
 const teamLookup = ref({});
 const featuredPlayers = ref([]);
-const weeks = ref([]); // <-- This was missing
+const weeks = ref([]);
 
 onMounted(async () => {
   const data = await get('/umbraco/delivery/api/v1/content?take=100');
