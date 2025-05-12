@@ -1,24 +1,27 @@
 <script setup>
 import { useRoute } from 'vue-router';
-const route = useRoute();
-const { get } = useApi();
+import { useLeagueStore } from '@/stores/useLeagueStore';
+import { formatDate } from '@/utils/formatDate';
 
-const post = ref(null);
+const route = useRoute();
+const league = useLeagueStore();
 
 onMounted(async () => {
-  const data = await get('/umbraco/delivery/api/v1/content?take=100');
-  const items = data?.items || [];
+  if (!league.items.length) {
+    await league.fetchContent(useApi());
+  }
+});
 
-  // Find the posts folder
-  const postsFolder = items.find((i) => i.contentType === 'postsFolder');
+const postsFolderId = computed(
+  () =>
+    league.items.find((i) => i.contentType?.toLowerCase() === 'postsfolder')?.id
+);
 
-  if (!postsFolder) return;
-
-  // Find the post inside the folder that matches the slug
-  post.value = items.find(
+const post = computed(() => {
+  return league.items.find(
     (p) =>
       p.contentType === 'post' &&
-      p.route?.startItem?.id === postsFolder.id &&
+      p.route?.startItem?.id === postsFolderId.value &&
       p.name.toLowerCase().replace(/\s+/g, '-') ===
         route.params.slug.toLowerCase()
   );
@@ -28,40 +31,28 @@ onMounted(async () => {
 <template>
   <section v-if="post" class="page-section">
     <div class="max-w-3xl mx-auto">
-      <!-- Hero image -->
       <img
         v-if="post.properties.mainImage?.[0]?.url"
         :src="`http://localhost:64203${post.properties.mainImage[0].url}`"
         alt="Post Image"
-        class="w-full h-64 object-cover rounded-xl mb-8 shadow"
+        class="w-full h-60 object-cover rounded-xl mb-6"
       />
 
-      <!-- Title -->
-      <h1 class="text-3xl font-extrabold text-center text-gray-900 mb-2">
-        {{ post.name }}
-      </h1>
+      <h1 class="text-4xl font-bold text-gray-900 mb-4">{{ post.name }}</h1>
 
-      <!-- Date -->
-      <p v-if="post.createDate" class="text-sm text-gray-500 text-center mb-8">
-        {{
-          new Date(post.createDate).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })
-        }}
+      <p class="text-sm text-gray-500 mb-6">
+        Published: {{ formatDate(post.properties.publishedDate) }}
       </p>
 
-      <!-- Rich content -->
       <div
         v-if="post.properties.content?.markup"
-        class="prose prose-lg max-w-none mx-auto"
         v-html="post.properties.content.markup"
+        class="prose prose-sm sm:prose lg:prose-lg max-w-none"
       />
     </div>
   </section>
 
-  <section v-else class="page-section text-center text-gray-400">
-    <p class="text-lg">🪵 Post not found.</p>
+  <section v-else class="page-section text-center">
+    <p class="text-gray-400">Post not found.</p>
   </section>
 </template>

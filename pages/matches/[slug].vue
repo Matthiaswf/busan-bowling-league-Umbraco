@@ -1,80 +1,26 @@
 <script setup>
 import { useRoute } from 'vue-router';
-const route = useRoute();
-const { get } = useApi();
+import { useLeagueStore } from '@/stores/useLeagueStore';
 
-const match = ref(null);
-const allPlayers = ref([]);
-const playerStats = ref({});
-const teamLookup = ref({});
+const route = useRoute();
+const league = useLeagueStore();
 
 onMounted(async () => {
-  const data = await get('/umbraco/delivery/api/v1/content?take=100');
-  const items = data?.items || [];
-
-  const weekDocs = items.filter((i) => i.contentType === 'week');
-  const matches = [];
-
-  for (const week of weekDocs) {
-    const weekMatches = week.properties?.matches?.items || [];
-    for (const matchItem of weekMatches) {
-      const matchDoc = matchItem.content;
-      if (matchDoc?.properties?.slug) {
-        matches.push(matchDoc);
-      }
-    }
+  if (!league.items.length) {
+    await league.fetchContent(useApi());
   }
-
-  console.log('ROUTE SLUG:', route.params.slug);
-  console.log(
-    'MATCH SLUGS:',
-    matches.map((m) => m.properties?.slug)
-  );
-
-  const playersFolder = items.find((i) => i.contentType === 'playersFolder');
-  allPlayers.value = items.filter(
-    (i) =>
-      i.contentType === 'player' && i.route?.startItem?.id === playersFolder?.id
-  );
-
-  const teams = items.filter((i) => i.contentType === 'team');
-  teamLookup.value = Object.fromEntries(teams.map((t) => [t.id, t]));
-
-  match.value = matches.find(
-    (m) =>
-      m.properties.slug?.trim().toLowerCase() ===
-      route.params.slug.trim().toLowerCase()
-  );
-
-  if (!match.value) return;
-
-  const games = match.value.properties.games?.items || [];
-  const stats = {};
-
-  for (const game of games) {
-    const scores = game.content?.properties?.playerScores?.items || [];
-    for (const s of scores) {
-      const props = s.content?.properties;
-      const playerId = props?.player?.[0]?.id;
-      if (!playerId) continue;
-      const score = props.score || 0;
-
-      if (!stats[playerId]) stats[playerId] = { total: 0, games: 0 };
-
-      stats[playerId].total += score;
-      stats[playerId].games++;
-    }
-  }
-
-  playerStats.value = stats;
 });
 
-const getPlayer = (id) => allPlayers.value.find((p) => p.id === id);
-const getTeamName = (id) => teamLookup.value[id]?.name || 'Unknown';
+const match = computed(() => league.matchBySlug(route.params.slug));
+
+const getPlayer = (id) => league.players.find((p) => p.id === id);
+const getTeamName = (id) => league.teamLookup[id]?.name || 'Unknown';
 </script>
 
 <template>
   <section v-if="match" class="page-section">
+    <h1 class="section-title text-center mb-6">Match: {{ match.name }}</h1>
+
     <div
       v-for="(game, index) in match.properties.games?.items || []"
       :key="game.id"
@@ -85,14 +31,7 @@ const getTeamName = (id) => teamLookup.value[id]?.name || 'Unknown';
       <div class="grid md:grid-cols-2 gap-6">
         <div class="bg-white rounded-xl shadow p-4">
           <h3 class="font-semibold text-gray-700 mb-2">
-            <NuxtLink
-              :to="`/teams/${getTeamName(match.properties.homeTeam?.[0]?.id)
-                .toLowerCase()
-                .replace(/\s+/g, '-')}`"
-              class="nav-link"
-            >
-              {{ getTeamName(match.properties.homeTeam?.[0]?.id) }}
-            </NuxtLink>
+            {{ getTeamName(match.properties.homeTeam?.[0]?.id) }}
           </h3>
           <table class="w-full text-sm">
             <tbody>
@@ -108,12 +47,12 @@ const getTeamName = (id) => teamLookup.value[id]?.name || 'Unknown';
               >
                 <td class="py-2">
                   <NuxtLink
+                    class="nav-link"
                     :to="`/players/${getPlayer(
                       score.content?.properties?.player?.[0]?.id
                     )
                       ?.name.toLowerCase()
                       .replace(/\s+/g, '-')}`"
-                    class="nav-link"
                   >
                     {{
                       getPlayer(score.content?.properties?.player?.[0]?.id)
@@ -145,14 +84,7 @@ const getTeamName = (id) => teamLookup.value[id]?.name || 'Unknown';
 
         <div class="bg-white rounded-xl shadow p-4">
           <h3 class="font-semibold text-gray-700 mb-2">
-            <NuxtLink
-              :to="`/teams/${getTeamName(match.properties.awayTeam?.[0]?.id)
-                .toLowerCase()
-                .replace(/\s+/g, '-')}`"
-              class="nav-link"
-            >
-              {{ getTeamName(match.properties.awayTeam?.[0]?.id) }}
-            </NuxtLink>
+            {{ getTeamName(match.properties.awayTeam?.[0]?.id) }}
           </h3>
           <table class="w-full text-sm">
             <tbody>
@@ -168,12 +100,12 @@ const getTeamName = (id) => teamLookup.value[id]?.name || 'Unknown';
               >
                 <td class="py-2">
                   <NuxtLink
+                    class="nav-link"
                     :to="`/players/${getPlayer(
                       score.content?.properties?.player?.[0]?.id
                     )
                       ?.name.toLowerCase()
                       .replace(/\s+/g, '-')}`"
-                    class="nav-link"
                   >
                     {{
                       getPlayer(score.content?.properties?.player?.[0]?.id)
@@ -216,18 +148,16 @@ const getTeamName = (id) => teamLookup.value[id]?.name || 'Unknown';
         </thead>
         <tbody>
           <tr
-            v-for="[id, stat] in Object.entries(playerStats).sort(
-              ([, a], [, b]) => b.total / b.games - a.total / a.games
-            )"
+            v-for="(stat, id) in match.playerStats"
             :key="id"
             class="border-b last:border-0"
           >
             <td class="py-2">
               <NuxtLink
+                class="nav-link"
                 :to="`/players/${getPlayer(id)
                   ?.name.toLowerCase()
                   .replace(/\s+/g, '-')}`"
-                class="nav-link"
               >
                 {{ getPlayer(id)?.name }}
               </NuxtLink>

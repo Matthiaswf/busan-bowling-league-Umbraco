@@ -1,120 +1,38 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-const { get } = useApi();
+import { useLeagueStore } from '@/stores/useLeagueStore';
+import { formatDate } from '@/utils/formatDate';
 
-const posts = ref([]);
-const teams = ref([]);
-const allPlayers = ref([]);
-const teamLookup = ref({});
-const featuredPlayers = ref([]);
-const weeks = ref([]);
+const league = useLeagueStore();
 
 onMounted(async () => {
-  const data = await get('/umbraco/delivery/api/v1/content?take=100');
-  const items = data?.items || [];
+  if (!league.items.length) {
+    await league.fetchContent(useApi());
+  }
+});
 
-  posts.value = items.filter((item) => item.contentType === 'post');
-  teams.value = items.filter((item) => item.contentType === 'team');
-  teamLookup.value = Object.fromEntries(teams.value.map((t) => [t.id, t]));
+const postsFolderId = computed(
+  () =>
+    league.items.find((i) => i.contentType?.toLowerCase() === 'postsfolder')?.id
+);
 
-  const playersFolder = items.find((i) => i.contentType === 'playersFolder');
-  if (playersFolder) {
-    allPlayers.value = items.filter(
+const posts = computed(() =>
+  league.items
+    .filter(
       (i) =>
-        i.contentType === 'player' &&
-        i.route?.startItem?.id === playersFolder.id
-    );
+        i?.contentType === 'post' &&
+        i.route?.startItem?.id === postsFolderId.value
+    )
+    .sort(
+      (a, b) =>
+        new Date(b.properties.publishedDate).getTime() -
+        new Date(a.properties.publishedDate).getTime()
+    )
+);
 
-    featuredPlayers.value = allPlayers.value.slice(0, 3);
-  }
-
-  const season = items.find((i) => i.contentType === 'season');
-  if (season) {
-    weeks.value = items.filter(
-      (item) =>
-        item.contentType === 'week' && item.route?.startItem?.id === season.id
-    );
-  }
-});
-
-const postsSorted = computed(() => {
-  return [...posts.value].sort((a, b) => {
-    const aDate = new Date(a.properties.publishedDate);
-    const bDate = new Date(b.properties.publishedDate);
-    return bDate - aDate;
-  });
-});
-
-const computedStats = computed(() => {
-  const statsMap = {};
-
-  for (const week of weeks.value) {
-    const matches = week.properties.matches?.items || [];
-
-    for (const match of matches) {
-      const matchProps = match.content?.properties;
-      const home = matchProps?.homeTeam?.[0]?.id;
-      const away = matchProps?.awayTeam?.[0]?.id;
-      const games = matchProps?.games?.items || [];
-
-      if (!home || !away || games.length === 0) continue;
-
-      if (!statsMap[home]) statsMap[home] = { gp: 0, w: 0, l: 0, pts: 0 };
-      if (!statsMap[away]) statsMap[away] = { gp: 0, w: 0, l: 0, pts: 0 };
-
-      statsMap[home].gp += games.length;
-      statsMap[away].gp += games.length;
-
-      let homeWins = 0;
-      let awayWins = 0;
-
-      for (const game of games) {
-        const scores = game.content?.properties?.playerScores?.items || [];
-        let homeTotal = 0;
-        let awayTotal = 0;
-
-        for (const score of scores) {
-          const s = score.content?.properties;
-          const points = s?.score || 0;
-          const playerId = s?.player?.[0]?.id;
-          const fullPlayer = allPlayers.value.find(
-            (p) => p.id === playerId && p.contentType === 'player'
-          );
-          const playerTeam = fullPlayer?.properties?.team?.[0]?.id;
-
-          if (!playerTeam) continue;
-
-          if (playerTeam === home) homeTotal += points;
-          else if (playerTeam === away) awayTotal += points;
-        }
-
-        if (homeTotal > awayTotal) homeWins++;
-        else if (awayTotal > homeTotal) awayWins++;
-      }
-
-      // Determine match winner
-      if (homeWins > awayWins) {
-        statsMap[home].w += 1;
-        statsMap[home].pts += 1;
-        statsMap[away].l += 1;
-      } else if (awayWins > homeWins) {
-        statsMap[away].w += 1;
-        statsMap[away].pts += 1;
-        statsMap[home].l += 1;
-      }
-    }
-  }
-
-  return statsMap;
-});
-
-const sortedTeams = computed(() => {
-  return Object.values(teamLookup.value).sort((a, b) => {
-    const aStats = computedStats.value[a.id] || { pts: 0 };
-    const bStats = computedStats.value[b.id] || { pts: 0 };
-    return bStats.pts - aStats.pts;
-  });
-});
+const teams = computed(() => league.teams);
+const sortedTeams = computed(() => league.sortedTeamsByPoints);
+const computedStats = computed(() => league.computedStats);
+const featuredPlayers = computed(() => league.players.slice(0, 3));
 </script>
 
 <template>
@@ -123,20 +41,17 @@ const sortedTeams = computed(() => {
     <h2 class="section-title mb-4">Latest Posts</h2>
     <div class="space-y-6 max-w-2xl mx-auto">
       <NuxtLink
-        v-for="post in postsSorted.slice(0, 3)"
+        v-for="post in posts.slice(0, 3)"
         :key="post.id"
         :to="`/posts/${post.name.toLowerCase().replace(/\s+/g, '-')}`"
         class="block bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden"
       >
-        <!-- Image -->
         <img
           v-if="post.properties.mainImage?.[0]?.url"
           :src="`http://localhost:64203${post.properties.mainImage[0].url}`"
           alt="Post Image"
           class="w-full h-48 object-cover"
         />
-
-        <!-- Text content -->
         <div class="p-6 space-y-2">
           <h2 class="text-xl font-semibold text-gray-800">{{ post.name }}</h2>
           <p class="text-gray-400 text-sm">
@@ -150,7 +65,6 @@ const sortedTeams = computed(() => {
         </div>
       </NuxtLink>
     </div>
-
     <div class="text-center mt-6">
       <NuxtLink to="/posts" class="btn-primary">View All Posts →</NuxtLink>
     </div>
@@ -185,16 +99,16 @@ const sortedTeams = computed(() => {
               </NuxtLink>
             </td>
             <td class="p-3 text-center">
-              {{ computedStats[team.id]?.gp || 0 }}
+              {{ league.getTeamStats(team.id).gp }}
             </td>
             <td class="p-3 text-center">
-              {{ computedStats[team.id]?.w || 0 }}
+              {{ league.getTeamStats(team.id).w }}
             </td>
             <td class="p-3 text-center">
-              {{ computedStats[team.id]?.l || 0 }}
+              {{ league.getTeamStats(team.id).l }}
             </td>
             <td class="p-3 text-center font-semibold">
-              {{ computedStats[team.id]?.pts || 0 }}
+              {{ league.getTeamStats(team.id).pts }}
             </td>
           </tr>
         </tbody>
@@ -215,7 +129,7 @@ const sortedTeams = computed(() => {
       <NuxtLink
         v-for="team in teams"
         :key="team.id"
-        :to="`/teams/${team.name.toLowerCase().replace(/ /g, '-')}`"
+        :to="`/teams/${team.name.toLowerCase().replace(/\s+/g, '-')}`"
         class="bg-white rounded-2xl shadow p-4 text-center hover:shadow-md transition block"
       >
         <div
@@ -228,7 +142,6 @@ const sortedTeams = computed(() => {
             class="w-full h-full object-cover"
           />
         </div>
-
         <p class="font-semibold text-gray-800 hover:text-black transition">
           {{ team.name }}
         </p>

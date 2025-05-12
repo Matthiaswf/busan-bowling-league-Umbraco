@@ -1,53 +1,40 @@
 <script setup>
-const { get } = useApi();
-const players = ref([]);
-const teams = ref([]);
-const teamLookup = ref({});
+import { useLeagueStore } from '@/stores/useLeagueStore';
+
+const league = useLeagueStore();
 
 onMounted(async () => {
-  const data = await get('/umbraco/delivery/api/v1/content?take=100');
-  const items = data?.items || [];
-
-  // Find Players folder
-  const playersFolder = items.find((i) => i.contentType === 'playersFolder');
-  if (playersFolder) {
-    players.value = items.filter(
-      (i) =>
-        i.contentType === 'player' &&
-        i.route?.startItem?.id === playersFolder.id
-    );
+  if (!league.items.length) {
+    await league.fetchContent(useApi());
   }
-
-  teams.value = items.filter((i) => i.contentType === 'team');
-  teamLookup.value = Object.fromEntries(teams.value.map((t) => [t.id, t]));
 });
+
+const players = computed(() => league.players);
 </script>
 
 <template>
   <section class="page-section">
-    <h1 class="section-title text-center">Players</h1>
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+    <h1 class="section-title text-center mb-6">All Players</h1>
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-6">
       <NuxtLink
         v-for="player in players"
         :key="player.id"
         :to="`/players/${player.name.toLowerCase().replace(/\s+/g, '-')}`"
-        class="bg-white rounded p-4 text-center shadow hover:shadow-md transition duration-200"
+        class="bg-white rounded-xl shadow p-4 text-center hover:shadow-md transition block"
       >
-        <img
-          v-if="player.properties.avatar?.[0]?.url"
-          :src="`http://localhost:64203${player.properties.avatar[0].url}`"
-          alt="Avatar"
-          class="w-20 h-20 rounded-full object-cover mx-auto mb-3"
-        />
-        <p class="text-lg font-bold text-gray-900">{{ player.name }}</p>
+        <div
+          class="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4 rounded-full border border-gray-300 overflow-hidden"
+        >
+          <img
+            v-if="player.properties.avatar?.[0]?.url"
+            :src="`http://localhost:64203${player.properties.avatar[0].url}`"
+            alt="Player Avatar"
+            class="w-full h-full object-cover"
+          />
+        </div>
+        <h2 class="text-lg font-semibold text-gray-800">{{ player.name }}</h2>
         <p class="text-sm text-gray-500">
           {{ player.properties.position?.[0]?.name || 'No position' }}
-        </p>
-        <p class="text-xs text-gray-400 italic mt-1">
-          {{
-            teamLookup[player.properties.team?.[0]?.id]?.name ||
-            'No team assigned'
-          }}
         </p>
       </NuxtLink>
     </div>

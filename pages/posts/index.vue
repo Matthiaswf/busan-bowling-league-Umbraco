@@ -1,30 +1,35 @@
 <script setup>
-const { get } = useApi();
-const posts = ref([]);
+import { useLeagueStore } from '@/stores/useLeagueStore';
+import { formatDate } from '@/utils/formatDate';
+
+const league = useLeagueStore();
 
 onMounted(async () => {
-  const data = await get('/umbraco/delivery/api/v1/content?take=100');
-  const items = data?.items || [];
-
-  // Find Posts folder by contentType
-  const postsFolder = items.find((i) => i.contentType === 'postsFolder');
-
-  if (postsFolder) {
-    posts.value = items
-      .filter(
-        (i) =>
-          i.contentType === 'post' && i.route?.startItem?.id === postsFolder.id
-      )
-      .sort(
-        (a, b) =>
-          new Date(b.properties.publishedDate) -
-          new Date(a.properties.publishedDate)
-      );
+  if (!league.items.length) {
+    await league.fetchContent(useApi());
   }
 });
 
-const showScrollTop = ref(false);
+const postsFolderId = computed(
+  () =>
+    league.items.find((i) => i.contentType?.toLowerCase() === 'postsfolder')?.id
+);
 
+const posts = computed(() =>
+  league.items
+    .filter(
+      (i) =>
+        i?.contentType === 'post' &&
+        i.route?.startItem?.id === postsFolderId.value
+    )
+    .sort(
+      (a, b) =>
+        new Date(b.properties.publishedDate).getTime() -
+        new Date(a.properties.publishedDate).getTime()
+    )
+);
+
+const showScrollTop = ref(false);
 const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
@@ -46,24 +51,16 @@ onMounted(() => {
         :to="`/posts/${post.name.toLowerCase().replace(/\s+/g, '-')}`"
         class="block bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden"
       >
-        <!-- Image -->
         <img
           v-if="post.properties.mainImage?.[0]?.url"
           :src="`http://localhost:64203${post.properties.mainImage[0].url}`"
           alt="Post Image"
           class="w-full h-48 object-cover"
         />
-
-        <!-- Text content -->
         <div class="p-6 space-y-2">
           <h2 class="text-xl font-semibold text-gray-800">{{ post.name }}</h2>
           <p class="text-gray-400 text-sm">
-            {{
-              new Date(post.properties.publishedDate).toLocaleDateString(
-                'en-US',
-                { year: 'numeric', month: 'short', day: 'numeric' }
-              )
-            }}
+            {{ formatDate(post.properties.publishedDate) }}
           </p>
           <div
             v-if="post.properties.content?.markup"
@@ -73,7 +70,6 @@ onMounted(() => {
         </div>
       </NuxtLink>
     </div>
-    <!-- Scroll to Top Button -->
     <button
       v-show="showScrollTop"
       @click="scrollToTop"
