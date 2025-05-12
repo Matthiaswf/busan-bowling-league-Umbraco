@@ -1,23 +1,38 @@
 <script setup>
+import { ref, computed, onMounted } from 'vue';
 import { useLeagueStore } from '@/stores/useLeagueStore';
 
 const league = useLeagueStore();
+const searchQuery = ref('');
 
 onMounted(async () => {
-  if (!league.items.length) {
+  if (!league.players.length) {
     await league.fetchContent(useApi());
   }
 });
 
-const players = computed(() => league.players);
+const filteredPlayers = computed(() => {
+  return league.players.filter((player) =>
+    player.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+});
 </script>
 
 <template>
   <section class="page-section">
     <h1 class="section-title text-center mb-6">All Players</h1>
+    <div class="mb-6 max-w-md mx-auto">
+      <input
+        v-model="searchQuery"
+        type="text"
+        placeholder="Search players..."
+        class="w-full border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none"
+      />
+    </div>
+
     <div class="grid grid-cols-2 sm:grid-cols-3 gap-6">
       <NuxtLink
-        v-for="player in players"
+        v-for="player in filteredPlayers"
         :key="player.id"
         :to="`/players/${player.name.toLowerCase().replace(/\s+/g, '-')}`"
         class="bg-white rounded-xl shadow p-4 text-center hover:shadow-md transition block"
