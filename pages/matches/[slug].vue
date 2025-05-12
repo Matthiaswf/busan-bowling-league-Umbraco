@@ -12,9 +12,14 @@ onMounted(async () => {
 });
 
 const match = computed(() => league.matchBySlug(route.params.slug));
-
 const getPlayer = (id) => league.players.find((p) => p.id === id);
 const getTeamName = (id) => league.teamLookup[id]?.name || 'Unknown';
+const sortedStats = computed(() => {
+  if (!match.value?.playerStats) return [];
+  return Object.entries(match.value.playerStats).sort(
+    ([, a], [, b]) => b.total / b.games - a.total / a.games
+  );
+});
 </script>
 
 <template>
@@ -148,7 +153,7 @@ const getTeamName = (id) => league.teamLookup[id]?.name || 'Unknown';
         </thead>
         <tbody>
           <tr
-            v-for="(stat, id) in match.playerStats"
+            v-for="[id, stat] in sortedStats"
             :key="id"
             class="border-b last:border-0"
           >
