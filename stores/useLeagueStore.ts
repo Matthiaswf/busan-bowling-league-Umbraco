@@ -20,36 +20,41 @@ export const useLeagueStore = defineStore('league', {
     getTeam: (state) => (id: string) => state.teamLookup[id],
 
     matchBySlug: (state) => (slug: string) => {
-      for (const week of state.weeks) {
-        const matches = week.properties?.matches?.items || [];
+      const match = state.matches.find(
+        (m) =>
+          m.properties?.slug?.trim().toLowerCase() === slug.trim().toLowerCase()
+      );
 
-        for (const matchItem of matches) {
-          const matchDoc = matchItem.content;
-          const matchSlug = matchDoc?.properties?.slug?.trim().toLowerCase();
-          if (matchSlug === slug.trim().toLowerCase()) {
-            const stats: Record<string, { total: number; games: number }> = {};
-            const games = matchDoc.properties.games?.items || [];
+      if (!match) return null;
 
-            for (const game of games) {
-              const scores =
-                game.content?.properties?.playerScores?.items || [];
-              for (const s of scores) {
-                const props = s.content?.properties;
-                const playerId = props?.player?.[0]?.id;
-                if (!playerId) continue;
+      // Inject playerStats for the match
+      const stats: Record<string, { total: number; games: number }> = {};
+      const games = match.properties?.games?.items || [];
 
-                if (!stats[playerId]) stats[playerId] = { total: 0, games: 0 };
-                stats[playerId].total += props.score || 0;
-                stats[playerId].games++;
-              }
-            }
+      for (const game of games) {
+        const scores = game.content?.properties?.playerScores?.items || [];
+        for (const s of scores) {
+          const props = s.content?.properties;
+          const playerId = props?.player?.[0]?.id;
+          if (!playerId) continue;
+          const score = props.score || 0;
 
-            matchDoc.playerStats = stats;
-            return matchDoc;
-          }
+          if (!stats[playerId]) stats[playerId] = { total: 0, games: 0 };
+          stats[playerId].total += score;
+          stats[playerId].games++;
         }
       }
-      return null;
+
+      match.playerStats = stats;
+      return match;
+    },
+
+    getWeeksBySeason: (state) => (seasonId: string) => {
+      return state.weeks.filter(
+        (week) =>
+          week.route?.startItem?.id === seasonId ||
+          week.properties?.season?.[0]?.id === seasonId
+      );
     },
 
     getPlayerStats: (state) => (playerId: string) => {
