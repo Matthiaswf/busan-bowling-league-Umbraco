@@ -68,8 +68,16 @@ const isWinner = (teamId, game) => {
           }"
         >
           <h3 class="font-semibold text-gray-700 mb-2">
-            {{ getTeamName(match.properties.homeTeam?.[0]?.id) }}
+            <NuxtLink
+              class="nav-link"
+              :to="`/teams/${getTeamName(match.properties.homeTeam?.[0]?.id)
+                .toLowerCase()
+                .replace(/\s+/g, '-')}`"
+            >
+              {{ getTeamName(match.properties.homeTeam?.[0]?.id) }}
+            </NuxtLink>
           </h3>
+
           <table class="w-full text-sm">
             <tbody>
               <tr
@@ -130,8 +138,16 @@ const isWinner = (teamId, game) => {
           }"
         >
           <h3 class="font-semibold text-gray-700 mb-2">
-            {{ getTeamName(match.properties.awayTeam?.[0]?.id) }}
+            <NuxtLink
+              class="nav-link"
+              :to="`/teams/${getTeamName(match.properties.awayTeam?.[0]?.id)
+                .toLowerCase()
+                .replace(/\s+/g, '-')}`"
+            >
+              {{ getTeamName(match.properties.awayTeam?.[0]?.id) }}
+            </NuxtLink>
           </h3>
+
           <table class="w-full text-sm">
             <tbody>
               <tr
