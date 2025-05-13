@@ -5,6 +5,7 @@ import { formatDate } from '~/utils/formatDate';
 
 const league = useLeagueStore();
 const selectedSeason = ref(null);
+const currentWeekIndex = ref(0);
 
 const weeks = computed(() =>
   selectedSeason.value ? league.getWeeksBySeason(selectedSeason.value.id) : []
@@ -40,7 +41,10 @@ const sortedPlayers = computed(() => {
       <button
         v-for="season in league.seasons"
         :key="season.id"
-        @click="selectedSeason = season"
+        @click="
+          selectedSeason = season;
+          currentWeekIndex = 0;
+        "
         :class="[
           'px-4 py-1 rounded-full text-sm font-semibold transition border',
           selectedSeason?.id === season.id
@@ -52,25 +56,42 @@ const sortedPlayers = computed(() => {
       </button>
     </div>
 
-    <!-- Week match cards -->
-    <div v-if="weeks.length" class="flex flex-wrap gap-6 justify-center">
+    <!-- Carousel Controls and Title -->
+    <div v-if="weeks.length" class="text-center mb-4">
+      <div class="flex justify-center items-center gap-6">
+        <button
+          @click="currentWeekIndex = Math.max(currentWeekIndex - 1, 0)"
+          class="text-2xl"
+        >
+          «
+        </button>
+        <h2 class="section-title m-0">{{ weeks[currentWeekIndex]?.name }}</h2>
+        <button
+          @click="
+            currentWeekIndex = Math.min(currentWeekIndex + 1, weeks.length - 1)
+          "
+          class="text-2xl"
+        >
+          »
+        </button>
+      </div>
+
+      <!-- Week Card -->
       <div
-        v-for="week in weeks"
-        :key="week.id"
-        class="bg-white rounded-xl shadow-md p-6 w-full max-w-md border border-gray-100 hover:shadow-lg transition"
+        class="bg-white rounded-xl shadow-md p-6 w-full max-w-md border border-gray-100 mx-auto mt-6"
       >
-        <h3 class="text-lg font-bold text-gray-900 mb-1">{{ week.name }}</h3>
         <p class="text-sm text-gray-500 mb-3">
           {{
-            week.properties.date
-              ? formatDate(new Date(week.properties.date))
+            weeks[currentWeekIndex].properties.date
+              ? formatDate(new Date(weeks[currentWeekIndex].properties.date))
               : 'No date set'
           }}
         </p>
 
         <ul class="space-y-3">
           <li
-            v-for="match in week.properties.matches?.items || []"
+            v-for="match in weeks[currentWeekIndex].properties.matches?.items ||
+            []"
             :key="match.id"
             class="grid grid-cols-[1fr_auto_1fr] items-center text-sm text-gray-700 gap-2"
           >
