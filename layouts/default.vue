@@ -5,9 +5,9 @@
         class="max-w-screen-lg mx-auto px-6 flex items-center justify-center"
       >
         <NuxtLink to="/" class="flex items-center gap-3">
-          <img src="/assets/navbar/beer.svg" alt="Logo" class="w-8 h-8" />
+          <img src="/assets/navbar/beer.svg" alt="Logo" class="w-14 h-14" />
           <h1
-            class="text-2xl font-extrabold bg-gradient-logo bg-clip-text text-transparent"
+            class="text-4xl font-extrabold bg-gradient-logo bg-clip-text text-transparent"
           >
             Busan Bowling League
           </h1>
