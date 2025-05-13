@@ -69,7 +69,7 @@ const isWinner = (teamId, game) => {
 </script>
 
 <template>
-  <section class="page-section" v-if="week">
+  <section class="page-section min-w-[500px]" v-if="week">
     <h1 class="section-title text-center mb-6">{{ week.name }}</h1>
 
     <div

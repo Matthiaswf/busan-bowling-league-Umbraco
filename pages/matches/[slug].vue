@@ -46,7 +46,7 @@ const isWinner = (teamId, game) => {
 </script>
 
 <template>
-  <section v-if="match" class="page-section">
+  <section v-if="match" class="page-section min-w-[500px]">
     <h1 class="section-title text-center mb-6">
       {{ match.properties.homeTeam?.[0]?.name }} vs
       {{ match.properties.awayTeam?.[0]?.name }}
