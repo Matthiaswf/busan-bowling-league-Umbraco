@@ -104,14 +104,10 @@ const matches = computed(() =>
         Match History
       </h2>
       <ul class="w-full max-w-2xl mx-auto space-y-3">
-        <li
-          v-for="(match, index) in matches"
-          :key="index"
-          class="grid grid-cols-[1fr_auto_1fr] items-center bg-gray-100 rounded p-3 text-sm text-gray-700 w-full"
-        >
+        <li v-for="(match, index) in matches" :key="index">
           <NuxtLink
             :to="`/matches/${match.slug}`"
-            class="contents hover:underline"
+            class="grid grid-cols-[1fr_auto_1fr] items-center bg-gray-100 rounded p-3 text-sm text-gray-700 w-full hover:bg-gray-200 transition"
           >
             <span class="text-right font-semibold truncate">
               {{ match.home.name }}

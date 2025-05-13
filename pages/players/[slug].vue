@@ -94,24 +94,24 @@ const playerStats = computed(() =>
         Recent Matches
       </h2>
       <ul class="space-y-3 max-w-2xl mx-auto w-full px-4">
-        <li
-          v-for="(match, index) in recentMatches"
-          :key="index"
-          class="bg-gray-50 rounded-xl p-4 flex items-center justify-between shadow-sm"
-        >
+        <li v-for="(match, index) in recentMatches" :key="index">
           <NuxtLink
             :to="`/matches/${match.slug}`"
-            class="flex justify-between w-full items-center"
+            class="block focus:outline-none"
           >
-            <span class="font-medium text-gray-700 w-1/3 text-left truncate">
-              {{ match.home.name }}
-            </span>
-            <span class="font-semibold text-lg whitespace-nowrap">
-              {{ match.homeWins }} - {{ match.awayWins }}
-            </span>
-            <span class="font-medium text-gray-700 w-1/3 text-right truncate">
-              {{ match.away.name }}
-            </span>
+            <div
+              class="w-full bg-gray-50 hover:bg-gray-100 rounded-xl p-4 flex items-center justify-between shadow-sm transition"
+            >
+              <div class="text-gray-700 font-medium w-1/3 text-left truncate">
+                {{ match.home.name }}
+              </div>
+              <div class="font-semibold text-lg whitespace-nowrap">
+                {{ match.homeWins }} - {{ match.awayWins }}
+              </div>
+              <div class="text-gray-700 font-medium w-1/3 text-right truncate">
+                {{ match.away.name }}
+              </div>
+            </div>
           </NuxtLink>
         </li>
       </ul>
