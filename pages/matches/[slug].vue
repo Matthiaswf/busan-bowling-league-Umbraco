@@ -47,7 +47,10 @@ const isWinner = (teamId, game) => {
 
 <template>
   <section v-if="match" class="page-section">
-    <h1 class="section-title text-center mb-6">Match: {{ match.name }}</h1>
+    <h1 class="section-title text-center mb-6">
+      {{ match.properties.homeTeam?.[0]?.name }} vs
+      {{ match.properties.awayTeam?.[0]?.name }}
+    </h1>
 
     <div
       v-for="(game, index) in match.properties.games?.items || []"
@@ -223,6 +226,22 @@ const isWinner = (teamId, game) => {
               >
                 {{ getPlayer(id)?.name }}
               </NuxtLink>
+              <div
+                v-if="getPlayer(id)?.properties?.team?.[0]?.id"
+                class="text-sm text-gray-500"
+              >
+                <NuxtLink
+                  class="nav-link"
+                  :to="`/teams/${league
+                    .getTeam(getPlayer(id).properties.team[0].id)
+                    ?.name.toLowerCase()
+                    .replace(/\s+/g, '-')}`"
+                >
+                  {{
+                    league.getTeam(getPlayer(id).properties.team[0].id)?.name
+                  }}
+                </NuxtLink>
+              </div>
             </td>
             <td class="py-2 text-right">
               {{ (stat.total / stat.games).toFixed(1) }}

@@ -77,8 +77,11 @@ const sortedPlayers = computed(() => {
       </div>
 
       <!-- Week Card -->
-      <div
-        class="bg-white rounded-xl shadow-md p-6 w-full max-w-md border border-gray-100 mx-auto mt-6"
+      <NuxtLink
+        :to="`/weeks/${weeks[currentWeekIndex].name
+          .toLowerCase()
+          .replace(/\s+/g, '-')}`"
+        class="block bg-white rounded-xl shadow-md p-6 w-full max-w-md border border-gray-100 mx-auto mt-6 hover:shadow-lg transition"
       >
         <p class="text-sm text-gray-500 mb-3">
           {{
@@ -177,7 +180,7 @@ const sortedPlayers = computed(() => {
             </div>
           </li>
         </ul>
-      </div>
+      </NuxtLink>
     </div>
 
     <!-- Team Standings -->
