@@ -20,6 +20,29 @@ const sortedStats = computed(() => {
     ([, a], [, b]) => b.total / b.games - a.total / a.games
   );
 });
+
+const isWinner = (teamId, game) => {
+  const scores = game.content?.properties?.playerScores?.items || [];
+  let homeTotal = 0;
+  let awayTotal = 0;
+
+  for (const s of scores) {
+    const playerId = s.content?.properties?.player?.[0]?.id;
+    const player = getPlayer(playerId);
+    const tid = player?.properties?.team?.[0]?.id;
+    const score = s.content?.properties?.score || 0;
+
+    if (tid === match.value.properties.homeTeam?.[0]?.id) homeTotal += score;
+    else if (tid === match.value.properties.awayTeam?.[0]?.id)
+      awayTotal += score;
+  }
+
+  if (teamId === match.value.properties.homeTeam?.[0]?.id)
+    return homeTotal > awayTotal;
+  if (teamId === match.value.properties.awayTeam?.[0]?.id)
+    return awayTotal > homeTotal;
+  return false;
+};
 </script>
 
 <template>
@@ -34,7 +57,16 @@ const sortedStats = computed(() => {
       <h2 class="text-lg font-bold mb-4">Game {{ index + 1 }}</h2>
 
       <div class="grid md:grid-cols-2 gap-6">
-        <div class="bg-white rounded-xl shadow p-4">
+        <div
+          class="rounded-xl shadow p-4"
+          :class="{
+            'bg-green-50 border border-green-200': isWinner(
+              match.properties.homeTeam?.[0]?.id,
+              game
+            ),
+            'bg-white': !isWinner(match.properties.homeTeam?.[0]?.id, game),
+          }"
+        >
           <h3 class="font-semibold text-gray-700 mb-2">
             {{ getTeamName(match.properties.homeTeam?.[0]?.id) }}
           </h3>
@@ -87,7 +119,16 @@ const sortedStats = computed(() => {
           </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow p-4">
+        <div
+          class="rounded-xl shadow p-4"
+          :class="{
+            'bg-green-50 border border-green-200': isWinner(
+              match.properties.awayTeam?.[0]?.id,
+              game
+            ),
+            'bg-white': !isWinner(match.properties.awayTeam?.[0]?.id, game),
+          }"
+        >
           <h3 class="font-semibold text-gray-700 mb-2">
             {{ getTeamName(match.properties.awayTeam?.[0]?.id) }}
           </h3>
