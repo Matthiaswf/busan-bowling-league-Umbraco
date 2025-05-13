@@ -236,6 +236,20 @@ const sortedPlayers = computed(() => {
                 >
                   {{ player.name }}
                 </NuxtLink>
+                <div
+                  v-if="player.properties.team?.[0]?.id"
+                  class="text-sm text-gray-500"
+                >
+                  <NuxtLink
+                    :to="`/teams/${league
+                      .getTeam(player.properties.team[0].id)
+                      ?.name?.toLowerCase()
+                      .replace(/\s+/g, '-')}`"
+                    class="nav-link"
+                  >
+                    {{ league.getTeam(player.properties.team[0].id)?.name }}
+                  </NuxtLink>
+                </div>
               </td>
               <td class="p-3 border text-center">
                 {{ player.stats.averageScore }}
