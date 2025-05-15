@@ -69,19 +69,20 @@ const isWinner = (teamId, game) => {
 </script>
 
 <template>
-  <section class="page-section min-w-[500px]" v-if="week">
-    <h1 class="section-title text-center mb-6">{{ week.name }}</h1>
+  <section class="w-[80vw] sm:w-[500px] mx-auto px-4 py-8" v-if="week">
+    <h1 class="text-3xl font-bold text-center mb-6">{{ week.name }}</h1>
 
     <div
       v-for="(match, index) in week.properties.matches?.items || []"
       :key="index"
       class="mb-12"
     >
+      <!-- Responsive match heading -->
       <div
-        class="grid grid-cols-3 gap-2 text-lg font-bold text-center mb-8 items-center"
+        class="grid grid-cols-1 md:grid-cols-3 gap-2 text-lg font-bold text-center mb-8 items-center"
       >
         <NuxtLink
-          class="nav-link justify-self-end"
+          class="nav-link justify-self-center md:justify-self-end"
           :to="`/teams/${getTeamName(
             match.content?.properties?.homeTeam?.[0]?.id
           )
@@ -94,7 +95,7 @@ const isWinner = (teamId, game) => {
         <span class="text-gray-500 justify-self-center">vs</span>
 
         <NuxtLink
-          class="nav-link justify-self-start"
+          class="nav-link justify-self-center md:justify-self-start"
           :to="`/teams/${getTeamName(
             match.content?.properties?.awayTeam?.[0]?.id
           )
@@ -111,10 +112,12 @@ const isWinner = (teamId, game) => {
         class="mb-8"
       >
         <h3 class="text-md font-semibold mb-3">Game {{ gIndex + 1 }}</h3>
-        <div class="grid md:grid-cols-2 gap-6">
+
+        <!-- Responsive card grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Home Team -->
           <div
-            class="rounded-xl shadow p-4"
+            class="w-full min-w-0 rounded-xl shadow p-4"
             :class="{
               'bg-green-50 border border-green-200': isWinner(
                 match.content.properties.homeTeam?.[0]?.id,
@@ -183,7 +186,7 @@ const isWinner = (teamId, game) => {
 
           <!-- Away Team -->
           <div
-            class="rounded-xl shadow p-4"
+            class="w-full min-w-0 rounded-xl shadow p-4"
             :class="{
               'bg-green-50 border border-green-200': isWinner(
                 match.content.properties.awayTeam?.[0]?.id,
@@ -257,8 +260,8 @@ const isWinner = (teamId, game) => {
     <h2 class="text-xl font-semibold text-center mt-12 mb-4">
       Player Averages This Week
     </h2>
-    <div class="max-w-xl mx-auto bg-white p-4 rounded-xl shadow">
-      <table class="w-full text-sm">
+    <div class="w-full overflow-x-auto">
+      <table class="min-w-full text-sm ...">
         <thead>
           <tr class="text-left text-gray-600 border-b">
             <th class="py-2">Player</th>
@@ -303,7 +306,7 @@ const isWinner = (teamId, game) => {
     </div>
   </section>
 
-  <section v-else class="page-section text-center">
+  <section v-else class="w-full sm:min-w-[500px] px-4 sm:px-6 py-8 text-center">
     <p class="text-gray-400">Week not found.</p>
   </section>
 </template>
