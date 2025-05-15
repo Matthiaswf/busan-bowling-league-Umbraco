@@ -46,7 +46,7 @@ const isWinner = (teamId, game) => {
 </script>
 
 <template>
-  <section v-if="match" class="page-section min-w-[500px]">
+  <section v-if="match" class="w-[80vw] sm:w-[500px] mx-auto px-4 py-8">
     <div
       class="grid grid-cols-3 gap-2 text-lg font-bold text-center mb-8 items-center"
     >
@@ -271,7 +271,7 @@ const isWinner = (teamId, game) => {
     </div>
   </section>
 
-  <section v-else class="page-section text-center">
+  <section v-else class="w-[80vw] sm:w-[500px] mx-auto px-4 py-8 text-center">
     <p class="text-gray-400">Match not found.</p>
   </section>
 </template>
