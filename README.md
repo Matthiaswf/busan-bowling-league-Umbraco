@@ -1,4 +1,4 @@
-# Busan Bowling League – Headless CMS Sports Tracker
+# Busan Bowling League – Headless CMS
 
 Busan Bowling League is a web app designed to manage teams, players, games, and standings for a local bowling league. It uses Umbraco as a headless CMS and a Nuxt 3 frontend to deliver live data with a responsive design.
 
