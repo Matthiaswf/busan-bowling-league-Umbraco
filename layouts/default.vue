@@ -1,13 +1,17 @@
 <template>
   <div class="flex flex-col min-h-screen">
-    <header class="site-header bg-white shadow py-4">
+    <header class="site-header bg-white shadow py-4 sm:py-6">
       <div
-        class="max-w-screen-lg mx-auto px-6 flex items-center justify-center"
+        class="max-w-screen-lg mx-auto px-4 sm:px-6 flex items-center justify-center gap-3"
       >
-        <NuxtLink to="/" class="flex items-center gap-3">
-          <img src="/assets/navbar/beer.svg" alt="Logo" class="w-14 h-14" />
+        <NuxtLink to="/" class="flex items-center gap-2 sm:gap-3">
+          <img
+            src="/assets/navbar/beer.svg"
+            alt="Logo"
+            class="w-10 h-10 sm:w-14 sm:h-14"
+          />
           <h1
-            class="text-4xl font-extrabold bg-gradient-logo bg-clip-text text-transparent"
+            class="text-2xl sm:text-4xl font-extrabold bg-gradient-logo bg-clip-text text-transparent"
           >
             Busan Bowling League
           </h1>
