@@ -47,10 +47,29 @@ const isWinner = (teamId, game) => {
 
 <template>
   <section v-if="match" class="page-section min-w-[500px]">
-    <h1 class="section-title text-center mb-6">
-      {{ match.properties.homeTeam?.[0]?.name }} vs
-      {{ match.properties.awayTeam?.[0]?.name }}
-    </h1>
+    <div
+      class="grid grid-cols-3 gap-2 text-lg font-bold text-center mb-8 items-center"
+    >
+      <NuxtLink
+        class="nav-link justify-self-end"
+        :to="`/teams/${getTeamName(match.properties.homeTeam?.[0]?.id)
+          .toLowerCase()
+          .replace(/\s+/g, '-')}`"
+      >
+        {{ match.properties.homeTeam?.[0]?.name }}
+      </NuxtLink>
+
+      <span class="text-gray-500 justify-self-center">vs</span>
+
+      <NuxtLink
+        class="nav-link justify-self-start"
+        :to="`/teams/${getTeamName(match.properties.awayTeam?.[0]?.id)
+          .toLowerCase()
+          .replace(/\s+/g, '-')}`"
+      >
+        {{ match.properties.awayTeam?.[0]?.name }}
+      </NuxtLink>
+    </div>
 
     <div
       v-for="(game, index) in match.properties.games?.items || []"

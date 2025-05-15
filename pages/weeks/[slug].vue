@@ -77,9 +77,11 @@ const isWinner = (teamId, game) => {
       :key="index"
       class="mb-12"
     >
-      <h2 class="text-lg -4 text-center mb-8">
+      <div
+        class="grid grid-cols-3 gap-2 text-lg font-bold text-center mb-8 items-center"
+      >
         <NuxtLink
-          class="nav-link"
+          class="nav-link justify-self-end"
           :to="`/teams/${getTeamName(
             match.content?.properties?.homeTeam?.[0]?.id
           )
@@ -88,9 +90,11 @@ const isWinner = (teamId, game) => {
         >
           {{ getTeamName(match.content?.properties?.homeTeam?.[0]?.id) }}
         </NuxtLink>
-        vs
+
+        <span class="text-gray-500 justify-self-center">vs</span>
+
         <NuxtLink
-          class="nav-link"
+          class="nav-link justify-self-start"
           :to="`/teams/${getTeamName(
             match.content?.properties?.awayTeam?.[0]?.id
           )
@@ -99,7 +103,7 @@ const isWinner = (teamId, game) => {
         >
           {{ getTeamName(match.content?.properties?.awayTeam?.[0]?.id) }}
         </NuxtLink>
-      </h2>
+      </div>
 
       <div
         v-for="(game, gIndex) in match.content?.properties?.games?.items || []"
