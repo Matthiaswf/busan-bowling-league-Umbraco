@@ -28,13 +28,4 @@ The goal is to provide a clean, stat-driven interface for players and fans, whil
 - Pinia for state management  
 - Tailwind CSS  
 - Umbraco CMS (Headless via Delivery API)  
-- Vercel (Frontend hosting)  
-- Namecheap (DNS)  
-- Azure (planned backend deployment)  
-
----
-
-## Live Demo
-
-Visit the live site:  
-**[https://bblu.mattwf.dev](https://bblu.mattwf.dev)**
+- Vercel (Frontend hosting)    
